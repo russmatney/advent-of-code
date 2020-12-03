@@ -1,5 +1,6 @@
 #+TITLE: Advent of Code 2020
 
 * Solutions
-** [[file:src/one/core.clj][Day 1]]
-** [[file:src/two/core.clj][Day 2]]
+** [[file:src/one/core.clj][Day 1]]: Sums to 2020
+** [[file:src/two/core.clj][Day 2]]: Password Policy
+** [[file:src/three/core.clj][Day 3]]: Slope Dreams

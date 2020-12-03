@@ -14,4 +14,5 @@
        .getParent
        (str "/" ~fname)
        slurp
-       string/split-lines))
+       string/split-lines
+       (map string/trim)))

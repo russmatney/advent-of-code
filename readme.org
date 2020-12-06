@@ -6,3 +6,4 @@
 ** [[file:src/three/core.clj][Day 3]]: Slope Dreams
 ** [[file:src/four/core.clj][Day 4]]: The Midnight Parser
 ** [[file:src/five/core.clj][Day 5]]: Bored-ing Passes
+** [[file:src/six/core.clj][Day 6]]: Sets'n'stuff

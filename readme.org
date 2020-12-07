@@ -7,3 +7,4 @@
 ** [[file:src/four/core.clj][Day 4]]: The Midnight Parser
 ** [[file:src/five/core.clj][Day 5]]: Bored-ing Passes
 ** [[file:src/six/core.clj][Day 6]]: Sets'n'stuff
+** [[file:src/seven/core.clj][Day 7]]: Bag Rules

@@ -8,3 +8,4 @@
 ** [[file:src/five/core.clj][Day 5]]: Bored-ing Passes
 ** [[file:src/six/core.clj][Day 6]]: Sets'n'stuff
 ** [[file:src/seven/core.clj][Day 7]]: Bag Rules
+** [[file:src/eight/core.clj][Day 8]]: Some stuff

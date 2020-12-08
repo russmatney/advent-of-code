@@ -60,22 +60,19 @@
   (loop [line         0
          acc          0
          lines-called #{}
-         max-jmp-nop  0
-         max-cmd      nil]
+         non-acc-cmds []]
     (if (contains? lines-called line)
-      {:acc         acc
-       :max-jmp-nop max-jmp-nop
-       :max-cmd     max-cmd}
+      {:acc          acc
+       :non-acc-cmds non-acc-cmds}
       (let [{:keys [cmd arg]} (second (nth program line))
             {:keys [next-line acc]}
             ((exec cmd) {:line line :acc acc} arg)
 
-            [max-jmp-nop max-cmd]
-            (if (and (#{"jmp" "nop"} cmd)
-                     (> line max-jmp-nop))
-              [line cmd]
-              [max-jmp-nop max-cmd])]
-        (recur next-line acc (conj lines-called line) max-jmp-nop max-cmd)))))
+            non-acc-cmds
+            (if (#{"jmp" "nop"} cmd)
+              (conj non-acc-cmds {:cmd cmd :line line})
+              non-acc-cmds)]
+        (recur next-line acc (conj lines-called line) non-acc-cmds)))))
 
 (defn run-with-overwrite
   [program {:keys [overwrite-line overwrite-cmd]}]
@@ -86,7 +83,7 @@
       (contains? lines-called line)
       (do
         (println "stoppin', cuz we loopin', baby.")
-        acc)
+        false)
 
       (>= line (count program))
       (do
@@ -104,13 +101,18 @@
         (recur next-line acc (conj lines-called line))))))
 
 (comment
-  (let [program                       (build-program "input.txt")
-        {:keys [max-jmp-nop max-cmd]} (analyze-program program)]
+  (let [program                (build-program "input.txt")
+        {:keys [non-acc-cmds]} (analyze-program program)
+        non-acc-cmds           (sort-by :line > non-acc-cmds)]
 
-    (run-with-overwrite program {:overwrite-line max-jmp-nop
-                                 :overwrite-cmd  (if (#{"nop"} max-cmd)
-                                                   "jmp" "nop")})
-
-    )
-  ;; 1314 too low....hmmmm
-  )
+    (loop [non-acc-cmds non-acc-cmds]
+      (let [next               (first non-acc-cmds)
+            {:keys [line cmd]} next
+            result
+            (run-with-overwrite
+              program {:overwrite-line line
+                       :overwrite-cmd  (if (#{"nop"} cmd)
+                                         "jmp" "nop")})]
+        (if result
+          result
+          (recur (rest non-acc-cmds)))))))

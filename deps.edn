@@ -1,5 +1,7 @@
 {
  :paths   ["src"]
- :deps    {}
+ :deps    {org.clojure/math.combinatorics {:mvn/version "0.1.6"}
+           wing/wing                      {:mvn/version "0.1.4"}
+           }
  :aliases {}
  }

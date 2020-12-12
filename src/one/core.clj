@@ -56,7 +56,10 @@
          (fn [{:keys [remaining ns] :as agg} x]
            (if-let [more-ns
                     (cond
-                      (> n 1)      (when-let [ns (seq (n-that-eq (- n 1) (- target x) remaining))]
+                      (> n 1)      (when-let [ns (seq (n-that-eq
+                                                        (- n 1)
+                                                        (- target x)
+                                                        remaining))]
                                      (conj ns x))
                       (= x target) [x]
                       :else        nil)]
@@ -69,6 +72,8 @@
   (n-that-eq 1 2020 (sort [1721 979 366 299 675 1456 2020]))
   (n-that-eq 2 2020 (sort [979 366 1721 299 675 1456]))
   (n-that-eq 3 2020 (sort [979 366 1721 299 675 1456]))
+
+  (n-that-eq 2 40 [35 20 15 25 47])
 
   (->>
     [1721 979 366 299 675 1456]

@@ -42,3 +42,67 @@
   (let [res (count-diffs "input.txt")]
     (* (get res 1) (get res 3)))
   )
+
+
+;; part 2
+;; count valid adapter arrangements
+
+(defn as-diffs [f]
+  (->> (input f)
+       (map read-string)
+       sort
+       (reduce
+         (fn [{:keys [diffs last]} next]
+           {:diffs (conj diffs (- next last))
+            :last  next})
+         {:diffs []
+          :last  0})))
+
+(comment
+  (as-diffs "example.txt")
+  (as-diffs "example_two.txt")
+  (as-diffs "input.txt")
+
+
+  (->> (as-diffs "example.txt")
+       :diffs
+       (partition-by #{3})
+       (remove (comp #{3} first))
+       (map (fn [group]
+              (cond
+                (= (count group) 4) 7
+                (= (count group) 3) 4
+                (= (count group) 2) 2
+                (= (count group) 1) 1)))
+       (apply *)
+       )
+  )
+
+(defn count-arrangements [f]
+  (let [nums (->> (input f)
+                  (map read-string)
+                  sort)]
+    (loop [remaining nums
+           current-v 0
+           arr-count 1 ;; presume we're on the only path to start
+           ]
+      (if-not (seq remaining)
+        arr-count
+        (let [next-vs          (->> (take 3 remaining) (remove nil?))
+              diffs            (->> next-vs (map #(- % current-v)))
+              valid-diffs      (->> diffs (filter #(<= % 3)))
+              valid-diff-count (count valid-diffs)
+              new-arrangements (case 3 4
+                                     2 2
+                                     1 1)
+              ]
+          (recur (drop valid-diff-count remaining)
+                 (last diffs)
+                 (+ arr-count new-arrangements)))))))
+
+
+(comment
+  (count-arrangements "example.txt")
+  (count-arrangements "example_two.txt")
+  (count-arrangements "input.txt")
+  )

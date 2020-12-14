@@ -74,35 +74,25 @@
                 (= (count group) 3) 4
                 (= (count group) 2) 2
                 (= (count group) 1) 1)))
-       (apply *)
-       )
-  )
+       (apply *)))
 
 (defn count-arrangements [f]
-  (let [nums (->> (input f)
-                  (map read-string)
-                  sort)]
-    (loop [remaining nums
-           current-v 0
-           arr-count 1 ;; presume we're on the only path to start
-           ]
-      (if-not (seq remaining)
-        arr-count
-        (let [next-vs          (->> (take 3 remaining) (remove nil?))
-              diffs            (->> next-vs (map #(- % current-v)))
-              valid-diffs      (->> diffs (filter #(<= % 3)))
-              valid-diff-count (count valid-diffs)
-              new-arrangements (case 3 4
-                                     2 2
-                                     1 1)
-              ]
-          (recur (drop valid-diff-count remaining)
-                 (last diffs)
-                 (+ arr-count new-arrangements)))))))
-
+  (->> (as-diffs f)
+       :diffs
+       (partition-by #{3})
+       (remove (comp #{3} first))
+       (map (fn [group]
+              ;; here we map the diff groups to their permutation count
+              (cond
+                (= (count group) 4) 7
+                (= (count group) 3) 4
+                (= (count group) 2) 2
+                (= (count group) 1) 1)))
+       (apply *)))
 
 (comment
   (count-arrangements "example.txt")
   (count-arrangements "example_two.txt")
   (count-arrangements "input.txt")
+  442136281481216
   )

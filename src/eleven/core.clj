@@ -46,8 +46,18 @@
     )
   )
 
+(defn update-seat-part-1 [seats {:keys [seat row col]}]
+  (let [occupied-seats
+        (->>
+          (adjacent-seats seats {:row row :col col})
+          (filter #{:occupied})
+          count)]
+    (cond
+      (and (= :empty seat) (= 0 occupied-seats))     :occupied
+      (and (= :occupied seat) (>= occupied-seats 4)) :empty
+      :else                                          seat)))
 
-(defn apply-round [seats]
+(defn apply-round [seats update-seat]
   (let [did-update? (atom nil)]
     {:did-update? did-update?
      :seats
@@ -61,46 +71,94 @@
                  row
                  (map-indexed
                    (fn [col-i seat]
-                     (let [occupied-seats
-                           (->>
-                             (adjacent-seats
-                               seats
-                               {:row row-i :col col-i})
-                             (filter #{:occupied})
-                             count)]
+                     (let [updated-seat
+                           (update-seat
+                             seats {:row row-i :col col-i :seat seat})]
+                       (when (not (= seat updated-seat))
+                         (reset! did-update? true))
+                       updated-seat)))))))))}))
 
-                       (cond
-                         (and (= :empty seat) (= 0 occupied-seats))
-                         (do
-                           (reset! did-update? true)
-                           :occupied)
-                         (and (= :occupied seat) (>= occupied-seats 4))
-                         (do
-                           (reset! did-update? true)
-                           :empty)
-                         :else seat))))))))))}))
-
-(defn apply-until-stable [seats]
+(defn apply-until-stable [seats update-seat]
   (loop [seats seats
          round 0]
-    (let [{:keys [did-update? seats]} (apply-round seats)]
-      (if @did-update?
-        (recur seats (inc round))
-        seats))))
+    (println "round" round)
+    (if (> round 200)
+      seats
+      (let [{:keys [did-update? seats]} (apply-round seats update-seat)]
+        (if @did-update?
+          (recur seats (inc round))
+          seats)))))
 
 
 (comment
   (let [seats  (parse-seats "example.txt")
-        stable (apply-until-stable seats)]
+        stable (apply-until-stable seats update-seat-part-1)]
     (->> stable
          flatten
          (filter #{:occupied})
          count))
 
   (let [seats  (parse-seats "input.txt")
-        stable (apply-until-stable seats)]
+        stable (apply-until-stable seats update-seat-part-1)]
     (->> stable
          flatten
          (filter #{:occupied})
          count))
+  )
+
+(defn first-in-direction [seats seat direction]
+  (loop [current seat]
+    (let [next       {:row (+ (:row current) (:row direction))
+                      :col (+ (:col current) (:col direction))}
+          found-seat (get-seat seats next)]
+      (cond
+        found-seat                            found-seat
+        (or (< (:row next) 0)
+            (> (:row next) (-> seats first count))
+            (< (:col next) 0)
+            (> (:col next) (-> seats count))) nil
+        :else                                 (recur next)))))
+
+(defn visible-seats [seats seat]
+  ;; get first seat in each direction
+  (->> [[-1 -1] [-1 0] [-1 1]
+        [0 -1] [0 1]
+        [1 -1] [1 0] [1 1]]
+       (map (fn [[r c]] {:row r :col c}))
+       (map (partial first-in-direction seats seat))))
+
+(comment
+  (let [seats (parse-seats "example.txt")]
+    (visible-seats seats {:row 1 :col 1})
+    )
+  )
+
+(defn update-seat-part-2 [seats {:keys [seat row col]}]
+  ;; looking in all directions!
+  (let [occupied-seats
+        (->>
+          (visible-seats seats {:row row :col col})
+          (filter #{:occupied})
+          count)]
+    (cond
+      (and (= :empty seat) (= 0 occupied-seats))     :occupied
+      (and (= :occupied seat) (>= occupied-seats 5)) :empty
+      :else                                          seat)))
+
+(comment
+  (println "hi")
+  (let [seats  (parse-seats "example.txt")
+        stable (apply-until-stable seats update-seat-part-2)]
+    (->> stable
+         flatten
+         (filter #{:occupied})
+         count))
+
+  (let [seats  (parse-seats "input.txt")
+        stable (apply-until-stable seats update-seat-part-2)]
+    (->> stable
+         flatten
+         (filter #{:occupied})
+         count))
+  ;; 1974
   )

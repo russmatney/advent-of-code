@@ -11,3 +11,4 @@
 ** [[file:src/eight/core.clj][Day 8]]: Some stuff
 ** [[file:src/nine/core.clj][Day 9]]: Sums of last x numbers
 ** [[file:src/ten/core.clj][Day 10]]: Adapter hell
+** [[file:src/eleven/core.clj][Day 11]]: Seat's taken

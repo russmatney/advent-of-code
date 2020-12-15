@@ -61,20 +61,7 @@
 (comment
   (as-diffs "example.txt")
   (as-diffs "example_two.txt")
-  (as-diffs "input.txt")
-
-
-  (->> (as-diffs "example.txt")
-       :diffs
-       (partition-by #{3})
-       (remove (comp #{3} first))
-       (map (fn [group]
-              (cond
-                (= (count group) 4) 7
-                (= (count group) 3) 4
-                (= (count group) 2) 2
-                (= (count group) 1) 1)))
-       (apply *)))
+  (as-diffs "input.txt"))
 
 (defn count-arrangements [f]
   (->> (as-diffs f)

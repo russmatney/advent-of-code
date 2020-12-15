@@ -81,3 +81,23 @@
          (apply *)
          ))
   )
+
+;; part 2
+
+(defn buses [f]
+  (-> (input f)
+      second
+      (string/split #",")
+      (->> (map (fn [val]
+                  (if (#{"x"} val) nil
+                      (read-string val)))))))
+
+(comment
+  (buses "input.txt")
+  (buses "example.txt")
+
+  (->>
+    (buses "example.txt")
+    (apply *)
+    )
+  )

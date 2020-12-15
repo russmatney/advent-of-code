@@ -84,20 +84,86 @@
 
 ;; part 2
 
-(defn buses [f]
+(defn parse-buses [f]
   (-> (input f)
       second
       (string/split #",")
       (->> (map (fn [val]
                   (if (#{"x"} val) nil
-                      (read-string val)))))))
+                      (read-string val))))
+           (into []))))
 
 (comment
-  (buses "input.txt")
-  (buses "example.txt")
+  (parse-buses "input.txt")
+  (parse-buses "example.txt")
+
+  (apply max (parse-buses "example.txt"))
+
 
   (->>
-    (buses "example.txt")
+    (parse-buses "example.txt")
     (apply *)
     )
+
+  (mod (+ 4 3) 7)
+  (every? true? [true false true])
+  )
+
+(defn ordered-arrivals? [t buses]
+  (->> buses
+       (map-indexed
+         (fn [i bus]
+           (if (nil? bus)
+             true
+             (let [t (+ i t)]
+               (= 0 (mod t bus))))))
+       (every? true?)))
+
+(defn brute [buses]
+  (let [largest (->> buses
+                     (remove nil?)
+                     (apply max))
+        fst     (first buses)
+        ]
+    (loop [t 0]
+      (if (ordered-arrivals? t buses)
+        t
+        (recur (+ t fst))))))
+
+(comment
+  (println "Hi")
+  (let [buses (parse-buses "example.txt")]
+    (brute buses))
+  (let [buses (parse-buses "input.txt")]
+    (println "running")
+    (println (brute buses))))
+
+(defn buses-with-offsets [f]
+  (let [buses          (parse-buses f)
+        with-offsets
+        (->> buses
+             (map-indexed
+               (fn [i bus]
+                 (if (nil? bus)
+                   nil
+                   [bus i])))
+             (remove nil?)
+             (into {}))
+        largest        (apply max (remove nil? buses))
+        largest-offset (with-offsets largest)
+
+        with-offsets
+        (->> with-offsets
+             (map (fn [[bus offset]]
+                    {:bus    bus
+                     :offset (- offset largest-offset)})))]
+    {:largest largest
+     :buses   with-offsets}))
+
+(comment
+  (buses-with-offsets "example.txt")
+  )
+
+(defn less-brute [f]
+  (let [{:keys [largest buses]} (buses-with-offsets f)])
   )

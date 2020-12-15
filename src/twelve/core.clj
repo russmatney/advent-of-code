@@ -121,7 +121,7 @@
 
    "L" (fn [{:keys [position waypoint]} num]
          {:position position
-          :waypoint (rotate-waypoint num waypoint)})
+          :waypoint (rotate-waypoint (- 360 num) waypoint)})
 
    "R" (fn [{:keys [position waypoint]} num]
          {:position position

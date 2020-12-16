@@ -14,3 +14,4 @@
 ** [[file:src/eleven/core.clj][Day 11]]: Seat's taken
 ** [[file:src/twelve/core.clj][Day 12]]: Adrift
 ** [[file:src/thirteen/core.clj][Day 13]]: Bus Schedule
+** [[file:src/fourteen/core.clj][Day 14]]: 6 feet and bit masks

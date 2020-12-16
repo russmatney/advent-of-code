@@ -162,8 +162,27 @@
 
 (comment
   (buses-with-offsets "example.txt")
+
+  (mod 14 7)
   )
 
+(defn ordered? [i buses]
+  (every? true?
+          (->> buses
+               (map (fn [{:keys [bus offset]}]
+                      (let [goal (+ i offset)]
+                        (= 0 (mod goal bus))))))))
+
 (defn less-brute [f]
-  (let [{:keys [largest buses]} (buses-with-offsets f)])
+  (let [{:keys [largest buses]} (buses-with-offsets f)
+        first-offset-val        (->> buses (map :offset) sort first)]
+    (println first-offset-val)
+    (loop [i 0]
+      (if (ordered? i buses)
+        (+ i first-offset-val)
+        (recur (+ i largest))))))
+
+(comment
+  (less-brute "example.txt")
+  (less-brute "input.txt")
   )

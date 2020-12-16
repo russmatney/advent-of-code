@@ -47,4 +47,15 @@
   (play example 5)
   (play example 10)
   (:last (play example 2020))
-  (:last (play input 2020)))
+  (:last (play input 2020))
+
+  )
+
+;; part 2 - bigger numbers!
+
+
+(comment
+  (def goal 30000000)
+  (:last (play example goal))
+  (:last (play input goal))
+  )

@@ -84,6 +84,21 @@
 
 ;; part 2
 
+
+;; cheated for helpers on this one.... :(
+;; https://rosettacode.org/wiki/Least_common_multiple#Clojure
+(defn gcd [a b]
+  (if (zero? b) a
+      (recur b (mod a b))))
+
+(defn lcm [a b]
+  (/ (* a b) (gcd a b)))
+
+(defn lcmv [& ns] (reduce lcm (remove nil? ns)))
+
+(comment
+  (lcmv 2 3 4 nil))
+
 (defn parse-buses [f]
   (-> (input f)
       second
@@ -93,96 +108,66 @@
                       (read-string val))))
            (into []))))
 
-(comment
-  (parse-buses "input.txt")
-  (parse-buses "example.txt")
-
-  (apply max (parse-buses "example.txt"))
-
-
-  (->>
-    (parse-buses "example.txt")
-    (apply *)
-    )
-
-  (mod (+ 4 3) 7)
-  (every? true? [true false true])
-  )
-
-(defn ordered-arrivals? [t buses]
-  (->> buses
-       (map-indexed
-         (fn [i bus]
-           (if (nil? bus)
-             true
-             (let [t (+ i t)]
-               (= 0 (mod t bus))))))
-       (every? true?)))
-
-(defn brute [buses]
-  (let [largest (->> buses
-                     (remove nil?)
-                     (apply max))
-        fst     (first buses)
-        ]
-    (loop [t 0]
-      (if (ordered-arrivals? t buses)
-        t
-        (recur (+ t fst))))))
-
-(comment
-  (println "Hi")
-  (let [buses (parse-buses "example.txt")]
-    (brute buses))
-  (let [buses (parse-buses "input.txt")]
-    (println "running")
-    (println (brute buses))))
-
 (defn buses-with-offsets [f]
-  (let [buses          (parse-buses f)
-        with-offsets
-        (->> buses
-             (map-indexed
-               (fn [i bus]
-                 (if (nil? bus)
-                   nil
-                   [bus i])))
-             (remove nil?)
-             (into {}))
-        largest        (apply max (remove nil? buses))
-        largest-offset (with-offsets largest)
-
-        with-offsets
-        (->> with-offsets
-             (map (fn [[bus offset]]
-                    {:bus    bus
-                     :offset (- offset largest-offset)})))]
-    {:largest largest
-     :buses   with-offsets}))
+  (let [buses (parse-buses f)]
+    (->> buses
+         (map-indexed
+           (fn [i bus]
+             (if (nil? bus)
+               nil
+               {:bus    bus
+                :offset i})))
+         (remove nil?))))
 
 (comment
   (buses-with-offsets "example.txt")
-
-  (mod 14 7)
   )
 
-(defn ordered? [i buses]
-  (every? true?
-          (->> buses
-               (map (fn [{:keys [bus offset]}]
-                      (let [goal (+ i offset)]
-                        (= 0 (mod goal bus))))))))
+(defn valid-bus?
+  [{:keys [bus offset]} t]
+  (= 0 (mod (+ t offset) bus)))
+
+(defn valid? [t buses]
+  (->> buses
+       (map #(valid-bus? % t))
+       (every? true?)))
 
 (defn less-brute [f]
-  (let [{:keys [largest buses]} (buses-with-offsets f)
-        first-offset-val        (->> buses (map :offset) sort first)]
-    (println first-offset-val)
-    (loop [i 0]
-      (if (ordered? i buses)
-        (+ i first-offset-val)
-        (recur (+ i largest))))))
+  (let [buses (buses-with-offsets f)]
+    (loop [t 0]
+      (if (valid? t buses)
+        t
+        (recur (+ t 1))))))
 
 (comment
   (less-brute "example.txt")
-  (less-brute "input.txt")
+  (less-brute "input.txt"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; borrowed from rschmukler
+;; this took me forever to read
+;; the use of `iterate` was new to me
+;; - it accumulates lcm for each bus+offset
+;; that way each new time `t` is already valid for all previous buses,
+;; and the incremented amount grows with each new factor added
+
+(defn step-time
+  [time-gen bus]
+  (let [step (->> time-gen (take 2) reverse (apply -))]
+    (println "bus" bus)
+    (println "time-gen" (->> time-gen (take 5)))
+    (println "step" step)
+    (->> time-gen
+         (filter (partial valid-bus? bus))
+         first
+         (iterate #(+ % (lcm step (:bus bus)))))))
+
+(comment
+  (->> (buses-with-offsets "example.txt")
+       (reduce step-time (range))
+       first)
+
+  (->> (buses-with-offsets "input.txt")
+       (reduce step-time (range))
+       first)
   )

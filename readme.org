@@ -16,3 +16,4 @@
 ** [[file:src/thirteen/core.clj][Day 13]]: Bus Schedule
 ** [[file:src/fourteen/core.clj][Day 14]]: 6 feet and bit masks
 ** [[file:src/fifteen/core.clj][Day 15]]: Elf games
+** [[file:src/sixteen/core.clj][Day 16]]: Tix

@@ -17,3 +17,4 @@
 ** [[file:src/fourteen/core.clj][Day 14]]: 6 feet and bit masks
 ** [[file:src/fifteen/core.clj][Day 15]]: Elf games
 ** [[file:src/sixteen/core.clj][Day 16]]: Tix
+** [[file:src/seventeen/core.clj][Day 17]]: [[https://www.wikiwand.com/en/Cube_(film)][Cube (film)]]

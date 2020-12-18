@@ -85,15 +85,77 @@
   (re-seq #"\d" "3")
   (eval-line "2 * 3 + 4 * 5")
   (eval-line "2 * 3 + (4 * 5)")
-  )
 
-(defn parse-file [f]
-  (->> (input f)
-       (map eval-line)))
+  (->> (input "example.txt")
+       (map eval-line))
+  (->> (input "input.txt")
+       (map eval-line)
+       (apply +)))
+
+
+(defn add-precedence-parens [s]
+  (let [s (string/replace s " " "")]
+    (loop [remaining  s
+           last-term  nil
+           new-str    ""
+           pending-op nil]
+      (if (seq remaining)
+        (let [c (->> remaining (take 1) first)]
+          (cond
+            (or (= c \+) (= c \*))
+            (recur (rest remaining) last-term new-str c)
+
+            (re-seq #"^(\d+)" (apply str remaining))
+            (let [num (->> remaining (apply str) (re-seq #"^(\d+)") first second)]
+              (cond
+                (nil? last-term)
+                (recur (rest remaining) num new-str pending-op)
+
+                (= pending-op \+)
+                ;; open paren, add last term and +, signal for next pass to close after term
+                (recur (rest remaining) (str "(" last-term "+" num ")")
+                       new-str nil)
+
+                (= pending-op \*)
+                ;; write last term, this op, signal to write next term
+                (recur (rest remaining) num
+                       (str new-str last-term "*") nil)))
+
+            (= c \()
+            (let [[paren-group remaining] (split-first-paren-group remaining)
+                  val                     (add-precedence-parens paren-group)
+                  term                    (str "(" val ")")
+                  [new-str last-term]
+                  (cond
+                    (nil? last-term)  [new-str term]
+                    (= pending-op \+) [new-str (str "(" last-term "+" term ")")]
+                    (= pending-op \*) [(str new-str last-term "*") term])]
+              (recur remaining last-term new-str pending-op))
+            ))
+        (cond
+          last-term
+          (str new-str last-term)
+
+          :else
+          new-str)))))
+
 
 (comment
-  (parse-file "example.txt")
-  (->> (parse-file "input.txt")
+  (add-precedence-parens "1 * (2 + 3) + 4")
+  (add-precedence-parens "(2 + 4 * 9) * (6 + 9 * 8 + 6) + 6")
+
+  (add-precedence-parens "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2")
+  (add-precedence-parens "2 * 3 + 4")
+  (add-precedence-parens "2 + 3 + 4")
+  (add-precedence-parens "2 * 3 + (4 * 5)")
+  (eval-line (add-precedence-parens "2 * 3 + 4")) ;; should be 14
+  (eval-line (add-precedence-parens "2 * 3 + (4 * 5)")) ;; should be 46
+
+  (->> (input "example.txt")
+       (map (comp eval-line add-precedence-parens)))
+
+  (->> (input "input.txt")
+       (map (comp eval-line add-precedence-parens))
        (apply +))
 
   )

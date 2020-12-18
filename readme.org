@@ -18,4 +18,4 @@
 ** [[file:src/fifteen/core.clj][Day 15]]: Elf games
 ** [[file:src/sixteen/core.clj][Day 16]]: Tix
 ** [[file:src/seventeen/core.clj][Day 17]]: [[https://www.wikiwand.com/en/Cube_(film)][Cube (film)]]
-** [[file:src/eighteen/core.clj][Day 18]]: _
+** [[file:src/eighteen/core.clj][Day 18]]: New Maths

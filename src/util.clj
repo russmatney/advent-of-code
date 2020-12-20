@@ -16,3 +16,8 @@
        slurp
        string/split-lines
        (#(map string/trim %))))
+
+(defn partition-by-newlines [lines]
+  (->> lines
+       (partition-by #{""})
+       (remove (comp #{""} first))))

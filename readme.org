@@ -19,4 +19,5 @@
 ** [[file:src/sixteen/core.clj][Day 16]]: Tix
 ** [[file:src/seventeen/core.clj][Day 17]]: [[https://www.wikiwand.com/en/Cube_(film)][Cube (film)]]
 ** [[file:src/eighteen/core.clj][Day 18]]: New Maths
-** [[file:src/nineteen/core.clj][Day 19]]: Sup
+** [[file:src/nineteen/core.clj][Day 19]]: Instaparse!
+** [[file:src/twenty/core.clj][Day 20]]: Puzzle Pieces

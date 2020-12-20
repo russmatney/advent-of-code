@@ -12,18 +12,18 @@
   ;; TODO expand to handle non number rules
   (when (seq line)
     (some->> line
-             (re-seq #"(\d+): ([\d| ]+)")
+             (re-seq #"(\d+): \"?([\w|\d| ]+)\"?")
              first
              rest
-             ((fn [[rule-number rule-refs]]
+             ((fn [[rule-number rule-defs]]
                 (when rule-number
-                  (println rule-number rule-refs)
+                  (println rule-number rule-defs)
                   [rule-number
-                   (-> rule-refs
+                   (-> rule-defs
                        (string/split #" \|")
                        (->>
-                         (map (fn [rule-nums]
-                                (-> rule-nums
+                         (map (fn [rule-def]
+                                (-> rule-def
                                     string/trim
                                     (string/split #" ")
                                     (->>
@@ -33,6 +33,8 @@
 (comment
   (parse-rule "0: 4 1 5")
   (parse-rule "0: 2 3 | 3 2")
+  (parse-rule "0: 2 3 | 3 2 | 1")
+  (parse-rule "0: \"a\"")
   )
 
 (defn rules [f]

@@ -419,7 +419,7 @@
   (build-puzzle "input.txt")
   )
 
-(defn merge-puzzle [puzz]
+(defn puzzle-image [puzz]
   (->> puzz
        (map-indexed vector)
        (reduce
@@ -441,7 +441,8 @@
                          (fn [s]
                            (apply str s
                                   (->> images (map #(nth % i))
-                                       (string/join " "))
+                                       ;; (string/join " ")
+                                       )
                                   ))))
                img
                (range ct))
@@ -453,7 +454,34 @@
   (range 6)
   (-> "example.txt"
       build-puzzle
-      merge-puzzle)
+      puzzle-image)
 
   "..#.#....###.#.#.......##....."
+  )
+
+(defn remove-image-borders [puzzle]
+  (->> puzzle
+       (map (fn [row]
+              (->> row
+                   (map (fn [tile]
+                          (update tile :image
+                                  (fn [img]
+                                    (->> img
+                                         rest
+                                         butlast
+                                         (map (fn [line]
+                                                (->> line
+                                                     rest
+                                                     butlast
+                                                     (apply str))))
+                                         (into []))))))
+                   (into []))))
+       (into [])))
+
+(comment
+  (-> "example.txt"
+      build-puzzle
+      remove-image-borders
+      puzzle-image
+      )
   )

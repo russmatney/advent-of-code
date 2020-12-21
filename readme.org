@@ -21,3 +21,4 @@
 ** [[file:src/eighteen/core.clj][Day 18]]: New Maths
 ** [[file:src/nineteen/core.clj][Day 19]]: Instaparse!
 ** [[file:src/twenty/core.clj][Day 20]]: Monster Search
+** [[file:src/twentyone/core.clj][Day 21]]: Allergens

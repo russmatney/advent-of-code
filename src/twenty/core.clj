@@ -8,8 +8,8 @@
   .... or maybe for insanity?"
   [image]
   {:top    (first image)
-   :bottom (apply str (reverse (last image)))
-   :left   (apply str (reverse (map (fn [line] (first line)) image)))
+   :bottom (apply str (last image))
+   :left   (apply str (map (fn [line] (first line)) image))
    :right  (apply str (map (fn [line] (last line)) image))})
 
 (defn parse-tile [lines]
@@ -296,51 +296,43 @@
   orient based on side and the edge found,
   update matched edges to reflect new orientation."
   [side matched-edge tile]
+  ;; (println "side" side "matched-edge" matched-edge)
+  ;; (println (:edges tile))
   (let [matching-edge   (->> (matching-edges
                                (:edges tile)
                                [side matched-edge])
                              first)
         match-side      (:side matching-edge)
-        match-reversed? (:reversed? matching-edge)]
+        match-reversed? (:reversed? matching-edge)
+        rots            (rotations [side match-side])
+        ]
 
-    (cond
-      (= side match-side)
-      (if match-reversed?
-        (rotate-tile 2 tile)
-        (if (#{:top :bottom} side)
-          (flip-tile :vertical tile)
-          (flip-tile :horizontal tile)))
+    ;; (println "match-side" match-side)
+    ;; (println "match-reversed?" match-reversed?)
+    ;; (println "rots" rots)
 
-      :else
-      (let [rots (rotations [side match-side])]
-        (when-not rots
-          (println "no rots!"))
-        (cond-> tile
-          match-reversed?
-          ((fn [t]
-             (if (#{:top :bottom} match-side)
-               (flip-tile :horizontal t)
-               (flip-tile :vertical t))
-             ))
+    (when-not rots
+      (println "no rots!"))
 
-          true
-          ((fn [t]
-             (rotate-tile rots t))))))))
+    (cond-> tile
+      match-reversed?
+      ((fn [t]
+         (if (#{:top :bottom} match-side)
+           (flip-tile :horizontal t)
+           (flip-tile :vertical t))))
+
+      true
+      ((fn [t]
+         (rotate-tile rots t))))))
 
 (comment
+  (println "xxxx")
   (let [pieces (assign-matching-edges "example.txt")
         p      (get pieces "1489")]
-
     p
-    (-> (update-tile-to-match :right
-                              ;; "#...##.#.#"
-                              "#.#.##...#"
-                              p)
-        :edges :left
-        )
-    )
-  (println "hi")
-  )
+    (-> (update-tile-to-match :right "#.#.##...#" p)
+        ;; :edges :left
+        )))
 
 (defn merge-tile
   "Adds the passed tile to the puzz at the correct index.
@@ -349,11 +341,14 @@
   "
   [puzz [matched-tile-side {:keys [tile]}]]
   (let [tile-in-puzzle
-        (some->> puzz
-                 flatten
+        (some->> puzz flatten
                  (filter
                    (comp #{(:id tile)} :id matched-tile-side :matched-edges))
                  first)
+
+        _ (println "merging tile:" (:id tile)
+                   "side:" matched-tile-side
+                   "matches: "(:id tile-in-puzzle))
 
         matched-edge (-> tile-in-puzzle :edges matched-tile-side)
 
@@ -370,6 +365,8 @@
              (map (fn [{:keys [x y]}] [x y]))
              first)
 
+        _ (println "match x/y" [match-x match-y] (:id tile) (:id tile-in-puzzle))
+
         [x-diff y-diff] (case matched-tile-side
                           :right  [1 0]
                           :left   [-1 0]
@@ -377,17 +374,35 @@
                           :top    [0 -1])
         [x y]           [(+ x-diff match-x) (+ y-diff match-y)]
 
+        _ (println "x/y" [x y])
+
         ;; does the new tile need to be reversed? rotated? flipped?
         ;; update :matched-edges to reflect the new side, same tile ref
 
         oriented-tile (update-tile-to-match matched-tile-side matched-edge tile)
-        ]
 
-    ;; TODO remove matched-edges from oriented-tile for tiles already in the puzzle
-    ;; TODO remove matched-edges from puzzle for this tile
-    (update-in puzz [y x] oriented-tile)
-    )
-  )
+        tile-ids (->> puzz flatten (map :id)
+                      (concat [(:id tile)]) (remove nil?) set)]
+
+    (-> puzz
+        (assoc-in [y x] oriented-tile)
+        ;; remove edges for tiles already in the puzzle
+        (->> (map
+               (fn [row]
+                 (->> row
+                      (map (fn [t]
+                             (if (seq (:matched-edges t))
+                               (update t :matched-edges
+                                       (fn [edges]
+                                         (->> edges
+                                              (remove (comp
+                                                        (fn [{:keys [id]}]
+                                                          (tile-ids id))
+                                                        val))
+                                              (into {}))))
+                               t)))
+                      (into []))))
+             (into [])))))
 
 (comment
   (let [f               "example.txt"
@@ -407,16 +422,7 @@
                              :id
                              (get pieces))]
     (merge-tile (assoc-in puzz [0 0] top-left-corner)
-                [:right {:tile      match
-                         :reversed? false
-                         :side      :left}])
-    ;; top-left-corner
-    ;; match
-    )
-  )
-
-(defn merge-tiles [puzz tiles-to-merge]
-  (reduce merge-tile puzz tiles-to-merge))
+                [:right {:tile match}])))
 
 (defn build-puzzle [f]
   (let [pieces          (assign-matching-edges f)
@@ -429,19 +435,31 @@
                                (comp #(set/subset? #{:bottom :right} %) set keys
                                      :matched-edges))
                              first)]
-    (loop [puzz (assoc-in puzz [0 0] top-left-corner)]
+    (loop [puzz (assoc-in puzz [0 0] top-left-corner)
+           i    0]
       ;; each loop, update the puzz :image and :matched-edges
-      (if-not (some->> puzz flatten (map :matched-edges) seq)
-        puzz
-        (let [tiles-to-merge (->> puzz :matched-edges
+      (def --puzz puzz)
+      (if
+          (and
+            (< i 100)
+            (some->> puzz flatten (mapcat (comp vals :matched-edges)) seq))
+        (let [tiles-to-merge (->> puzz flatten (mapcat :matched-edges)
+                                  (group-by (comp :id val))
+                                  vals
+                                  (map first)
                                   (map (fn [[side {:keys [id] :as match}]]
                                          [side (assoc match :tile
                                                       (get pieces id))])))]
-          (recur (merge-tiles puzz tiles-to-merge)))))))
+          (println "tiles-to-merge" (->> puzz flatten (mapcat :matched-edges)))
+          (println "tiles-to-merge" (count tiles-to-merge))
+          (println "tiles-to-merge" tiles-to-merge)
+          (recur (reduce merge-tile puzz tiles-to-merge) (+ i 1)))
+        {:puzz puzz :i i}))))
 
 (comment
   (->> [[{:matched-edges [1 2]}]] flatten (map :matched-edges) seq)
 
+  (println "hi")
   (build-puzzle "example.txt")
 
   (set/subset? #{:right}

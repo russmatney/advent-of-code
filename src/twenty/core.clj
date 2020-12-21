@@ -3,10 +3,13 @@
             [clojure.set :as set]
             [clojure.math.combinatorics :as combo]))
 
-(defn edges-for-image [image]
+(defn edges-for-image
+  "Here we reverse the bottom and left for rotational consistency....
+  .... or maybe for insanity?"
+  [image]
   {:top    (first image)
-   :bottom (last image)
-   :left   (apply str (map (fn [line] (first line)) image))
+   :bottom (apply str (reverse (last image)))
+   :left   (apply str (reverse (map (fn [line] (first line)) image)))
    :right  (apply str (map (fn [line] (last line)) image))})
 
 (defn parse-tile [lines]
@@ -275,27 +278,69 @@
     ;; (:image (rotate-tile 4 (val (first pieces))))
     ))
 
+(def rotations
+  {;; [to from] rotations
+   ;; :right -> distance from :left
+   [:right :right]   2
+   [:right :bottom]  1
+   [:right :left]    0
+   [:right :top]     3
+   ;; :bottom -> distance from :top
+   [:bottom :bottom] 2
+   [:bottom :right]  3
+   [:bottom :top]    0
+   [:bottom :left]   1})
+
 (defn update-tile-to-match
   "Find edge matching `matched-edge`,
   orient based on side and the edge found,
   update matched edges to reflect new orientation."
   [side matched-edge tile]
-  (let [matching-edge            (->> (matching-edges (:edges tile)
-                                                      [side matched-edge])
-                                      first)
-        {:keys [side reversed?]} matching-edge]
+  (let [matching-edge   (->> (matching-edges
+                               (:edges tile)
+                               [side matched-edge])
+                             first)
+        match-side      (:side matching-edge)
+        match-reversed? (:reversed? matching-edge)]
 
-    ;; (println side)
-    ;; (println matched-edge)
-    ;; (println tile)
-    ;; tile
-    matching-edge))
+    (cond
+      (= side match-side)
+      (if match-reversed?
+        (rotate-tile 2 tile)
+        (if (#{:top :bottom} side)
+          (flip-tile :vertical tile)
+          (flip-tile :horizontal tile)))
+
+      :else
+      (let [rots (rotations [side match-side])]
+        (when-not rots
+          (println "no rots!"))
+        (cond-> tile
+          match-reversed?
+          ((fn [t]
+             (if (#{:top :bottom} match-side)
+               (flip-tile :horizontal t)
+               (flip-tile :vertical t))
+             ))
+
+          true
+          ((fn [t]
+             (rotate-tile rots t))))))))
 
 (comment
-  (let [pieces (assign-matching-edges "example.txt")]
-    (-> (update-tile-to-match :right "#...##.#.#" (get pieces "1489"))
-        ;; :matched-edges
-        )))
+  (let [pieces (assign-matching-edges "example.txt")
+        p      (get pieces "1489")]
+
+    p
+    (-> (update-tile-to-match :right
+                              ;; "#...##.#.#"
+                              "#.#.##...#"
+                              p)
+        :edges :left
+        )
+    )
+  (println "hi")
+  )
 
 (defn merge-tile
   "Adds the passed tile to the puzz at the correct index.
@@ -336,9 +381,10 @@
         ;; update :matched-edges to reflect the new side, same tile ref
 
         oriented-tile (update-tile-to-match matched-tile-side matched-edge tile)
-
         ]
 
+    ;; TODO remove matched-edges from oriented-tile for tiles already in the puzzle
+    ;; TODO remove matched-edges from puzzle for this tile
     (update-in puzz [y x] oriented-tile)
     )
   )

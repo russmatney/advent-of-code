@@ -63,8 +63,6 @@
 
 ;; part 2
 
-
-
 (defn assigned-allergens [f]
   (let [i-by-a (ingredients-by-allergens f)
         ]
@@ -73,7 +71,7 @@
       (if-not (seq unassigned)
         assigned
         (let [[al ings] (->> unassigned
-                             (filter (comp count second))
+                             (filter (comp #{1} count second))
                              first)
               ing       (first ings)]
           (recur
@@ -85,6 +83,7 @@
 
 (comment
   (assigned-allergens "example.txt")
+  (assigned-allergens "input.txt")
   )
 
 (defn canonical-dangerous-ingredients-list [f]

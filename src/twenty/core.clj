@@ -509,21 +509,31 @@
         img-width   (-> img first count)
         width-diff  (- img-width shape-width)
 
-        ;; _         (println "width-diff" width-diff)
-        ;; _         (println "shape-reg-s" (string/join (apply str (repeat width-diff ".")) shape))
+        _         (println "width-diff" width-diff)
         shape-reg (re-pattern (string/join (apply str (repeat width-diff ".")) shape))
-        ;; _         (println "shape-reg" shape-reg)
+        _         (println "shape-reg" shape-reg)
         img-str   (string/join img)]
-    (count (re-seq shape-reg img-str))))
+    (loop [img       img-str
+           sightings 0]
+      (let [match (re-find shape-reg img)]
+        (if-not match
+          sightings
+          ;; drop the first match + 1 from the string and loop
+          (let [idx (string/index-of img match)
+                img (->> img (drop (inc idx)) (apply str))]
+            (recur img (inc sightings))))))))
 
 (comment
+  (let [img "hello"
+        idx (string/index-of img "l")]
+    (->> img (drop (+ idx 1)) (apply str)))
   (let [s "..#..#"]
-    (count (re-seq (re-pattern s) "...####.........#..#..#..#")))
+    (re-seq (re-pattern s) "...####.........#..#..#..#"))
 
-  (let [f      "example.txt"
-        img    (-> f build-puzzle remove-image-borders puzzle-image)
-        shapes (monster-shapes)]
-    (monster-sightings img (first shapes))))
+  (let [f     "example.txt"
+        img   (-> f build-puzzle remove-image-borders puzzle-image)
+        shape (-> (monster-shapes) rest rest first)]
+    (monster-sightings img shape)))
 
 (defn get-best-monster [img]
   (->> (monster-shapes)
@@ -531,20 +541,16 @@
               {:shape     shape
                :sightings (monster-sightings img shape)}))
        (sort-by :sightings >)
-       first
-       ))
+       first))
 
 (comment
   (let [f   "example.txt"
         img (-> f build-puzzle remove-image-borders puzzle-image)]
-    (get-best-monster img)
-    )
+    (get-best-monster img))
 
   (let [f   "input.txt"
         img (-> f build-puzzle remove-image-borders puzzle-image)]
-    (get-best-monster img)
-    )
-  )
+    (get-best-monster img)))
 
 (defn count-hashes [img]
   (-> img
@@ -562,12 +568,13 @@
         image-hashes (count-hashes puzzle-image)
         shape-hashes (count-hashes shape)
         ]
-    (- image-hashes (* sightings shape-hashes))
-    ))
+    (- image-hashes (* sightings shape-hashes))))
 
 (comment
+  (println "wh")
   (non-monster-hash-count "example.txt")
   ;; 288 too high
   (non-monster-hash-count "input.txt")
   ;; 2891 (probably) too high
+  ;; 2786 too high
   )

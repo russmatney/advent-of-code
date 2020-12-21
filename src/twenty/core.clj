@@ -10,8 +10,6 @@
   {:top    (first image)
    :bottom (apply str (reverse (last image)))
    :left   (apply str (reverse (map (fn [line] (first line)) image)))
-   ;; :bottom (apply str (last image))
-   ;; :left   (apply str (map (fn [line] (first line)) image))
    :right  (apply str (map (fn [line] (last line)) image))})
 
 (defn parse-tile [lines]
@@ -28,9 +26,6 @@
        input
        partition-by-newlines
        (map parse-tile)))
-
-(comment
-  (tiles "example.txt"))
 
 (defn matching-edge-counts [f]
   (let [edges (->> (tiles f)
@@ -77,12 +72,6 @@
 
 (defn matches-for-tiles [tile-a tile-b]
   (matching-edges-for-tile tile-a (:edges tile-b)))
-
-(comment
-  (matches-for-tiles
-    {:edges {:top ".##.#."}}
-    {:edges {:bottom ".##.#."
-             :left   ".####."}}))
 
 (defn set-matched-edges
   [tiles tile]
@@ -148,13 +137,9 @@
               (update seen (:id tile) (fn [x] (if x (inc x) 1))))))))))
 
 (comment
-  (println "xxx")
   (assign-matching-edges "example.txt")
 
-  (->> (assign-matching-edges "example.txt")
-       vals
-       (filter (comp #{2} count vals :matched-edges)))
-
+  ;; part 1
   (->> (assign-matching-edges "example.txt")
        vals
        (filter (comp #{2} count vals :matched-edges)))
@@ -173,15 +158,14 @@
 (defn init-puzz [len]
   (->>
     (repeat len (->> (repeat len nil) (into [])))
-    (into []))
-  )
+    (into [])))
 
 (defn flip-image [direction image]
   (case direction
     :vertical
     (->> image (reverse) (into []))
     :horizontal
-    (->> image (map (comp #(apply str %) reverse)) (into []))) )
+    (->> image (map (comp #(apply str %) reverse)) (into []))))
 
 (defn flip-tile [direction tile]
   (let [updated-image (flip-image direction (:image tile))
@@ -192,8 +176,7 @@
               (assoc :top (-> tile :matched-edges :bottom))
               (assoc :bottom (-> tile :matched-edges :top))
               (->> (remove (comp nil? val))
-                   (into {}))
-              )
+                   (into {})))
           :horizontal
           (-> tile :matched-edges
               (assoc :right (-> tile :matched-edges :left))
@@ -204,15 +187,6 @@
         (assoc :edges (edges-for-image updated-image))
         (assoc :matched-edges updated-matched-edges)
         (assoc :image updated-image))))
-
-(comment
-  (let [pieces (assign-matching-edges "example.txt")]
-    (println "hi")
-    (println (:image (val (first pieces))))
-    ;; (val (first pieces))
-    (flip-tile :vertical (val (first pieces)))
-    (flip-tile :horizontal (val (first pieces)))
-    ))
 
 (defn rotate-image-once [img]
   (let [cs        (->> img
@@ -265,7 +239,6 @@
 
 (comment
   (let [pieces (assign-matching-edges "example.txt")]
-    (println "hi")
     (println (:image (val (first pieces))))
 
     (:image (val (first pieces)))
@@ -276,16 +249,6 @@
   (->> (iterate rotate-tile-once tile)
        (take (+ times 1))
        last))
-
-(comment
-  (let [pieces (assign-matching-edges "example.txt")]
-    (println "hi")
-    (println (:image (val (first pieces))))
-    (:image (val (first pieces)))
-    ;; (:image (rotate-tile 1 (val (first pieces))))
-    ;; (:image (rotate-tile 2 (val (first pieces))))
-    ;; (:image (rotate-tile 4 (val (first pieces))))
-    ))
 
 (defn print-tile [tile]
   (println "Tile: " (:id tile))
@@ -306,17 +269,7 @@
    [:bottom :bottom] 2
    [:bottom :right]  3
    [:bottom :top]    0
-   [:bottom :left]   1
-   ;; :top
-   [:top :top]       2
-   [:top :left]      3
-   [:top :bottom]    0
-   [:top :right]     1
-   ;; :left
-   [:left :left]     2
-   [:left :top]      1
-   [:left :right]    0
-   [:left :bottom]   3})
+   [:bottom :left]   1})
 
 (defn update-tile-to-match
   "Find edge matching `matched-edge`,
@@ -338,13 +291,22 @@
       (println "no rots!"))
 
     (cond-> tile
-      (and (not match-reversed?) (= rots 0))
+      (not match-reversed?)
       ((fn [t]
          (println "edge case running!")
-         ;; TODO i think there's one more case here
-         (if (#{:right} side)
+         (cond
+           (and (#{:right :bottom} side)
+                (#{:left :right} match-side))
            (flip-tile :vertical t)
-           (flip-tile :horizontal t))))
+
+           (or
+             ;; (and (#{:right} side)
+             ;;      (#{:bottom :top} match-side))
+             (and (#{:bottom :right} side)
+                  (#{:top :bottom} match-side)))
+           (flip-tile :horizontal t)
+
+           :else t)))
 
       true
       ((fn [t]
@@ -412,48 +374,45 @@
                  next-index
                  (inc i)))))))
 
-(comment
-  (println "hi")
-  (build-puzzle "example.txt")
-
-  (build-puzzle "input.txt"))
-
 (defn puzzle-image [puzz]
   (->> puzz
        (map-indexed vector)
        (reduce
          (fn [img [index row]]
            (let [images (->> row (map :image))
-                 ct     (count (first images))
-                 ;; images (concat [(apply str (repeat ct " "))] images)
-                 ;; ct     (+ 1 ct)
-                 ]
-             ;; (println images)
-             ;; (println "ct" ct "index" index)
+                 ct     (count (first images))]
              (reduce
                (fn [img i]
-                 ;; (println "appending to row index" (+ (* ct index) i))
-                 ;; (println img)
-                 ;; (println i)
-                 ;; (println "images map nth i" (->> images (map #(nth % i))))
+                 (update img (+ (* ct index) i)
+                         (fn [s]
+                           (apply str s
+                                  (->> images (map #(nth % i)))))))
+               img
+               (range ct))))
+         [])))
+
+(defn puzzle-image-debug [puzz]
+  (->> puzz
+       (map-indexed vector)
+       (reduce
+         (fn [img [index row]]
+           (let [images (->> row (map :image))
+                 ct     (count (first images))]
+             (reduce
+               (fn [img i]
                  (update img (+ (* ct index) i)
                          (fn [s]
                            (apply str s
                                   (->> images (map #(nth % i))
-                                       ;; (string/join " ")
-                                       )
-                                  ))))
+                                       (string/join " "))))))
                img
-               (range ct))
-             ))
+               (range ct))))
          [])))
 
 (comment
-  (repeat 10 " ")
-  (range 6)
-  (-> "example.txt"
-      build-puzzle
-      puzzle-image))
+  (-> "example.txt" build-puzzle puzzle-image-debug)
+  (-> "input.txt" build-puzzle puzzle-image-debug)
+  )
 
 (defn remove-image-borders [puzzle]
   (->> puzzle
@@ -574,7 +533,9 @@
   (println "wh")
   (non-monster-hash-count "example.txt")
   ;; 288 too high
+  ;; 273
   (non-monster-hash-count "input.txt")
   ;; 2891 (probably) too high
   ;; 2786 too high
+  ;; 2366
   )

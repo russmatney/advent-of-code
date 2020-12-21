@@ -1,7 +1,8 @@
 (ns twenty.core
   (:require [util :refer [input partition-by-newlines]]
             [clojure.set :as set]
-            [clojure.math.combinatorics :as combo]))
+            [clojure.math.combinatorics :as combo]
+            [clojure.string :as string]))
 
 (defn edges-for-image
   "Here we reverse the bottom and left for rotational consistency....
@@ -316,29 +317,36 @@
   orient based on side and the edge found,
   update matched edges to reflect new orientation."
   [current-tile side tile]
-  (let [target-edge (-> current-tile :edges side)]
-    (let [matching-edge   (->> (matching-edges
-                                 (:edges tile)
-                                 [side target-edge])
-                               first)
-          match-side      (:side matching-edge)
-          match-reversed? (:reversed? matching-edge)
-          rots            (rotations [side match-side])
-          ]
+  (let [target-edge     (-> current-tile :edges side)
+        matching-edge   (->> (matching-edges
+                               (:edges tile)
+                               [side target-edge])
+                             first)
+        match-side      (:side matching-edge)
+        match-reversed? (:reversed? matching-edge)
+        rots            (rotations [side match-side])]
 
-      (when (= rots nil)
-        (println "no rots!"))
+    (println "match-reversed?" match-reversed?)
+    (println "rots" rots)
+    (when (= rots nil)
+      (println "no rots!"))
 
-      (cond-> tile
-        ;; match-reversed?
-        ;; ((fn [t]
-        ;;    (if (#{:top :bottom} match-side)
-        ;;      (flip-tile :horizontal t)
-        ;;      (flip-tile :vertical t))))
+    (cond-> tile
+      (and (not match-reversed?) (= rots 0))
+      ((fn [t]
+         (println "edge case running!")
+         ;; TODO i think there's one more case here
+         (if (#{:right} side)
+           (flip-tile :vertical t)
+           (flip-tile :horizontal t))))
 
-        true
-        ((fn [t]
-           (rotate-tile rots t)))))))
+      true
+      ((fn [t]
+         (rotate-tile rots t))))))
+
+(comment
+  (build-puzzle "example.txt")
+  )
 
 (comment
   (println "xxxx")
@@ -362,30 +370,6 @@
   (let [oriented-tile (update-tile-to-match current-tile side new-tile)]
     {:puzzle       (-> puzz (assoc-in [y x] oriented-tile))
      :updated-tile oriented-tile}))
-
-(comment
-  (let [f               "example.txt"
-        pieces          (assign-matching-edges f)
-        len             (-> pieces count Math/sqrt int)
-        puzz            (init-puzz len)
-        top-left-corner (->> pieces
-                             vals
-                             (filter (comp #{2} count vals :matched-edges))
-                             (filter
-                               (comp #(set/subset? #{:bottom :right} %) set keys
-                                     :matched-edges))
-                             first)
-        match           (->> top-left-corner
-                             :matched-edges
-                             :right
-                             :id
-                             (get pieces))]
-    (add-to-puzzle
-      (assoc-in puzz [0 0] top-left-corner)
-      [0 1]
-      top-left-corner match)
-    top-left-corner))
-
 
 (defn build-puzzle [f]
   (let [pieces          (assign-matching-edges f)
@@ -415,12 +399,7 @@
                                       [true [0 (+ 1 idx-y)]]
                                       [false [(inc idx-x) idx-y]])
               first-of-row          (when new-row?
-                                      (-> puzzle (nth idx-y) (nth 0)))
-              ]
-
-          (when first-of-row
-            (println "moving to a new row!")
-            )
+                                      (-> puzzle (nth idx-y) (nth 0)))]
 
           (recur puzzle
                  (if new-row?
@@ -434,29 +413,47 @@
                  (inc i)))))))
 
 (comment
-  (->> [[{:matched-edges [1 2]}]] flatten (map :matched-edges) seq)
-
   (println "hi")
   (build-puzzle "example.txt")
-
-  (set/subset? #{:right}
-               #{:bottom :right}
-               )
 
   (build-puzzle "input.txt")
   )
 
 (defn merge-puzzle [puzz]
   (->> puzz
-       (map (fn [row]
-              ;; reduce
-              (->> row
-                   (map (fn [tile]
-                          (->> tile
-                               :image
-                               (map (fn [line] line))))))))))
+       (map-indexed vector)
+       (reduce
+         (fn [img [index row]]
+           (let [images (->> row (map :image))
+                 ct     (count (first images))
+                 ;; images (concat [(apply str (repeat ct " "))] images)
+                 ;; ct     (+ 1 ct)
+                 ]
+             ;; (println images)
+             ;; (println "ct" ct "index" index)
+             (reduce
+               (fn [img i]
+                 ;; (println "appending to row index" (+ (* ct index) i))
+                 ;; (println img)
+                 ;; (println i)
+                 ;; (println "images map nth i" (->> images (map #(nth % i))))
+                 (update img (+ (* ct index) i)
+                         (fn [s]
+                           (apply str s
+                                  (->> images (map #(nth % i))
+                                       (string/join " "))
+                                  ))))
+               img
+               (range ct))
+             ))
+         [])))
 
 (comment
+  (repeat 10 " ")
+  (range 6)
   (-> "example.txt"
-      (build-puzzle)
-      merge-puzzle))
+      build-puzzle
+      merge-puzzle)
+
+  "..#.#....###.#.#.......##....."
+  )

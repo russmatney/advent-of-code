@@ -1,7 +1,6 @@
 (ns twenty.core
   (:require [util :refer [input partition-by-newlines]]
             [clojure.set :as set]
-            [clojure.math.combinatorics :as combo]
             [clojure.string :as string]))
 
 (defn edges-for-image
@@ -177,13 +176,15 @@
     (into []))
   )
 
+(defn flip-image [direction image]
+  (case direction
+    :vertical
+    (->> image (reverse) (into []))
+    :horizontal
+    (->> image (map (comp #(apply str %) reverse)) (into []))) )
+
 (defn flip-tile [direction tile]
-  (let [updated-image
-        (case direction
-          :vertical
-          (->> (:image tile) (reverse) (into []))
-          :horizontal
-          (->> (:image tile) (map (comp #(apply str %) reverse)) (into [])))
+  (let [updated-image (flip-image direction (:image tile))
         updated-matched-edges
         (case direction
           :vertical
@@ -213,7 +214,7 @@
     (flip-tile :horizontal (val (first pieces)))
     ))
 
-(defn rotate-image [img]
+(defn rotate-image-once [img]
   (let [cs        (->> img
                        (map-indexed
                          (fn [y line]
@@ -239,11 +240,16 @@
                 (apply str row)))
          (into []))))
 
+(defn rotate-image [times tile]
+  (->> (iterate rotate-image-once tile)
+       (take (+ times 1))
+       last))
+
 (defn rotate-tile-once
   "Rotates a tile one time, counterclockwise, such that:
   top->right, right->bottom, bottom->left, left->top."
   [tile]
-  (let [updated-image         (rotate-image (:image tile))
+  (let [updated-image         (rotate-image-once (:image tile))
         matched               (:matched-edges tile)
         updated-matched-edges (-> matched
                                   (assoc :right (:top matched))
@@ -343,10 +349,6 @@
       true
       ((fn [t]
          (rotate-tile rots t))))))
-
-(comment
-  (build-puzzle "example.txt")
-  )
 
 (comment
   (println "xxxx")
@@ -485,3 +487,27 @@
       puzzle-image
       )
   )
+
+(defn monster []
+  (-> "monster.txt"
+      input
+      ((fn [[one two three]]
+         (let [ct    (count two)
+               three (str "." three "...")
+               one   (apply str (concat (repeat (- ct 2) " ") [one "."]))]
+           (->> [one two three]
+                (map #(string/replace % " " "."))))
+         ))))
+
+(defn monster-shapes []
+  (let [mon     (monster)
+        flipped (flip-image :vertical mon)
+        ]
+    [mon
+     (rotate-image 1 mon)
+     (rotate-image 2 mon)
+     (rotate-image 3 mon)
+     flipped
+     (rotate-image 1 flipped)
+     (rotate-image 2 flipped)
+     (rotate-image 3 flipped)]))

@@ -358,9 +358,7 @@
     (print-tile tlc)
     (print-tile p)
     (-> (update-tile-to-match tlc :right p)
-        print-tile
-        )
-    ))
+        print-tile)))
 
 (defn add-to-puzzle
   "Adds the passed tile to the puzz to the right of the passed current-tile,
@@ -418,8 +416,7 @@
   (println "hi")
   (build-puzzle "example.txt")
 
-  (build-puzzle "input.txt")
-  )
+  (build-puzzle "input.txt"))
 
 (defn puzzle-image [puzz]
   (->> puzz
@@ -456,10 +453,7 @@
   (range 6)
   (-> "example.txt"
       build-puzzle
-      puzzle-image)
-
-  "..#.#....###.#.#.......##....."
-  )
+      puzzle-image))
 
 (defn remove-image-borders [puzzle]
   (->> puzzle
@@ -484,9 +478,7 @@
   (-> "example.txt"
       build-puzzle
       remove-image-borders
-      puzzle-image
-      )
-  )
+      puzzle-image))
 
 (defn monster []
   (-> "monster.txt"
@@ -496,13 +488,11 @@
                three (str "." three "...")
                one   (apply str (concat (repeat (- ct 2) " ") [one "."]))]
            (->> [one two three]
-                (map #(string/replace % " " "."))))
-         ))))
+                (map #(string/replace % " " "."))))))))
 
 (defn monster-shapes []
   (let [mon     (monster)
-        flipped (flip-image :vertical mon)
-        ]
+        flipped (flip-image :vertical mon)]
     [mon
      (rotate-image 1 mon)
      (rotate-image 2 mon)
@@ -511,3 +501,73 @@
      (rotate-image 1 flipped)
      (rotate-image 2 flipped)
      (rotate-image 3 flipped)]))
+
+(defn monster-sightings [img shape]
+  ;; (println "shape-str" (->> shape string/join))
+  ;; (println "img-str" (string/join img))
+  (let [shape-width (-> shape first count)
+        img-width   (-> img first count)
+        width-diff  (- img-width shape-width)
+
+        ;; _         (println "width-diff" width-diff)
+        ;; _         (println "shape-reg-s" (string/join (apply str (repeat width-diff ".")) shape))
+        shape-reg (re-pattern (string/join (apply str (repeat width-diff ".")) shape))
+        ;; _         (println "shape-reg" shape-reg)
+        img-str   (string/join img)]
+    (count (re-seq shape-reg img-str))))
+
+(comment
+  (let [s "..#..#"]
+    (count (re-seq (re-pattern s) "...####.........#..#..#..#")))
+
+  (let [f      "example.txt"
+        img    (-> f build-puzzle remove-image-borders puzzle-image)
+        shapes (monster-shapes)]
+    (monster-sightings img (first shapes))))
+
+(defn get-best-monster [img]
+  (->> (monster-shapes)
+       (map (fn [shape]
+              {:shape     shape
+               :sightings (monster-sightings img shape)}))
+       (sort-by :sightings >)
+       first
+       ))
+
+(comment
+  (let [f   "example.txt"
+        img (-> f build-puzzle remove-image-borders puzzle-image)]
+    (get-best-monster img)
+    )
+
+  (let [f   "input.txt"
+        img (-> f build-puzzle remove-image-borders puzzle-image)]
+    (get-best-monster img)
+    )
+  )
+
+(defn count-hashes [img]
+  (-> img
+      string/join
+      (->>
+        (filter #{\#})
+        count)))
+
+(defn non-monster-hash-count [f]
+  (let [puzzle       (remove-image-borders (build-puzzle f))
+        puzzle-image (puzzle-image puzzle)
+
+        {:keys [shape sightings]} (get-best-monster puzzle-image)
+
+        image-hashes (count-hashes puzzle-image)
+        shape-hashes (count-hashes shape)
+        ]
+    (- image-hashes (* sightings shape-hashes))
+    ))
+
+(comment
+  (non-monster-hash-count "example.txt")
+  ;; 288 too high
+  (non-monster-hash-count "input.txt")
+  ;; 2891 (probably) too high
+  )

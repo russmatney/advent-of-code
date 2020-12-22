@@ -22,3 +22,4 @@
 ** [[file:src/nineteen/core.clj][Day 19]]: Instaparse!
 ** [[file:src/twenty/core.clj][Day 20]]: Monster Search
 ** [[file:src/twentyone/core.clj][Day 21]]: Allergens
+** [[file:src/twentytwo/core.clj][Day 22]]: Crabs

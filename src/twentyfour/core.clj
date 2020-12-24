@@ -1,5 +1,6 @@
 (ns twentyfour.core
-  (:require [util :refer [input]]))
+  (:require [util :refer [input]]
+            [wing.core :as wing]))
 
 (defn tile-paths [f]
   (->> f
@@ -7,9 +8,6 @@
        (map (fn [line]
               (->> line
                    (re-seq #"[n|s]?[e|w]"))))))
-
-(comment
-  (tile-paths "example.txt"))
 
 (def step
   ;; even y means first row
@@ -67,13 +65,78 @@
          (remove (comp even? count second))
          (map (comp first second)))))
 
-(comment
-  (init-floor "example.txt"))
-
+;; consider memoizing
 (defn adjacent-tile-positions [pos]
-  (->> step
-       vals
+  (->> step vals
        (map (fn [f] (f pos)))))
 
+
+(defn flip-black-tile? [black-tile-set [_pos adjs]]
+  (let [black-adjs
+        (->> adjs
+             (filter black-tile-set)
+             count
+             )]
+    (or
+      (= black-adjs 0)
+      (> black-adjs 2))))
+
+(defn flip-adjs-map [[bt adjs]]
+  (->> adjs (map (fn [p] [p bt]))))
+
+(defn white-tiles-to-flip
+  "Expects a seq of tuples from black tile to it's neighbors, like:
+  [{:x x :y y [{:x x :y y}]}]"
+  [black-tiles-set black-tiles-with-adjs]
+  (->> black-tiles-with-adjs
+       ;; filter adjs to only white neighbors
+       (map (fn [[bt adjs]]
+              [bt (->> adjs (remove black-tiles-set))]
+              ))
+       ;; flip to tuples from adj to black tile
+       (mapcat flip-adjs-map)
+       ;; group-by to have white tiles keys to black tile groups
+       (wing/group-by first second)
+       ;; remove already black tiles
+       (remove (comp black-tiles-set first))
+       ;; find remaining with exactly two
+       (filter (comp #{2} count second))
+       ;; map to just tile pos
+       (map first)))
+
+(defn day [floor]
+  (let [
+        black-tiles           (set floor)
+        black-tiles-with-adjs (->> floor
+                                   (map
+                                     (fn [t]
+                                       [t (adjacent-tile-positions t)])))
+        to-remove
+        (->> black-tiles-with-adjs (filter
+                                     (partial flip-black-tile? black-tiles))
+             (map first)
+             (into #{}))
+
+        to-add (white-tiles-to-flip black-tiles black-tiles-with-adjs)]
+    (->> floor
+         (remove to-remove)
+         (concat to-add))))
+
+(defn days [floor n]
+  (->>
+    (iterate day floor)
+    (drop n)
+    first))
+
 (comment
-  (adjacent-tile-positions {:x 0 :y 0}))
+  (let [f     "example.txt"
+        floor (init-floor f)]
+    ;; (-> (day floor) count)
+    (-> (days floor 100) count)
+    )
+
+  (let [f     "input.txt"
+        floor (init-floor f)]
+    (-> (days floor 100) count)
+    )
+  )

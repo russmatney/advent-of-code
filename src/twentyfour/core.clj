@@ -53,6 +53,27 @@
 
 (comment
   (count-black-tiles "example.txt")
-  (count-black-tiles "input.txt")
+  (count-black-tiles "input.txt"))
 
-  )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; part 2
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn init-floor [f]
+  (let [paths (tile-paths f)]
+    (->> paths
+         (map apply-path)
+         (group-by str)
+         (remove (comp even? count second))
+         (map (comp first second)))))
+
+(comment
+  (init-floor "example.txt"))
+
+(defn adjacent-tile-positions [pos]
+  (->> step
+       vals
+       (map (fn [f] (f pos)))))
+
+(comment
+  (adjacent-tile-positions {:x 0 :y 0}))

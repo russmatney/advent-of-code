@@ -24,3 +24,4 @@
 ** [[file:src/twentyone/core.clj][Day 21]]: Allergens
 ** [[file:src/twentytwo/core.clj][Day 22]]: Crab Cards?
 ** [[file:src/twentythree/core.clj][Day 23]]: Crab Cups?
+** [[file:src/twentyfour/core.clj][Day 24]]: Hex Tiles

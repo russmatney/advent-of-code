@@ -30,6 +30,10 @@
           {:x (if (even? y) x (inc x))
            :y (inc y)})})
 
+(comment
+  ((step "ne") {:x 2 :y 0})
+  ((step "ne") {:x 2 :y 1}))
+
 (defn apply-path [steps]
   (loop [pos   {:x 0 :y 0}
          steps steps
@@ -65,10 +69,11 @@
          (remove (comp even? count second))
          (map (comp first second)))))
 
-;; consider memoizing
-(defn adjacent-tile-positions [pos]
-  (->> step vals
-       (map (fn [f] (f pos)))))
+(def adjacent-tile-positions
+  (memoize
+    (fn [pos]
+      (->> step vals
+           (map (fn [f] (f pos)))))))
 
 
 (defn flip-black-tile? [black-tile-set [_pos adjs]]
@@ -131,7 +136,7 @@
 (comment
   (let [f     "example.txt"
         floor (init-floor f)]
-    ;; (-> (day floor) count)
+    ;; (day floor)
     (-> (days floor 100) count)
     )
 

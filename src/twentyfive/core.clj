@@ -22,15 +22,19 @@
   (pks "input.txt"))
 
 
-(defn tx-sn [sn loop-size]
-  (let [blah 20201227]
-    (loop [val             1
-           remaining-loops loop-size]
-      (if (> remaining-loops 0)
-        (recur (mod (* sn val) blah) (dec remaining-loops))
-        val))))
+(def tx-sn
+  (memoize
+    (fn [sn loop-size]
+      (let [blah 20201227]
+        (loop [val             1
+               remaining-loops loop-size]
+          (if (> remaining-loops 0)
+            (recur (mod (* sn val) blah) (dec remaining-loops))
+            val))))))
 
 (comment
+  (mod (* 7 7 7 7) 20201227)
+  (mod (* 7 7 7 7 7 7 7 7 7 7 7) 20201227)
   (tx-sn 7 8)
   (tx-sn 7 11)
   )
@@ -44,21 +48,24 @@
 
 (comment
   (println "hi")
-  (def --ex-card-pk 5764801)
-  (def --ex-door-pk 17807724)
+  (def --pk1 5764801)
+  (def --pk2 17807724)
+  (/ 20201227 7)
+  (/ --pk1 7)
+  (/ --pk2 7)
   (def --sn 7)
-  (find-loop-size --sn --ex-card-pk)
-  (find-loop-size --sn --ex-door-pk)
+  (find-loop-size --sn --pk1)
+  (find-loop-size --sn --pk2)
 
   (->
-    (find-loop-size --sn --ex-card-pk)
+    (find-loop-size --sn --pk1)
     ((fn [ls]
-       (tx-sn --ex-door-pk ls))))
+       (tx-sn --pk2 ls))))
 
   (->
-    (find-loop-size --sn --ex-door-pk)
+    (find-loop-size --sn --pk2)
     ((fn [ls]
-       (tx-sn --ex-card-pk ls)))))
+       (tx-sn --pk1 ls)))))
 
 (defn find-encryption-key [f]
   (let [[pk1 pk2] (-> f pks)

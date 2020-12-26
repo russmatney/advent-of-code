@@ -22,15 +22,13 @@
   (pks "input.txt"))
 
 
-(def tx-sn
-  (memoize
-    (fn [sn loop-size]
-      (let [blah 20201227]
-        (loop [val             1
-               remaining-loops loop-size]
-          (if (> remaining-loops 0)
-            (recur (mod (* sn val) blah) (dec remaining-loops))
-            val))))))
+(defn tx-sn [sn loop-size]
+  (let [blah 20201227]
+    (loop [val             1
+           remaining-loops loop-size]
+      (if (> remaining-loops 0)
+        (recur (mod (* sn val) blah) (dec remaining-loops))
+        val))))
 
 (comment
   (mod (* 7 7 7 7) 20201227)
@@ -40,19 +38,17 @@
   )
 
 (defn find-loop-size [sn pk]
-  (loop [loop-size 0]
-    (let [calced (tx-sn sn loop-size)]
-      (if (= pk calced)
+  (loop [loop-size 1
+         val       1]
+    (let [new-val (mod (* val sn) 20201227)]
+      (if (= pk new-val)
         loop-size
-        (recur (inc loop-size))))))
+        (recur (inc loop-size) new-val)))))
 
 (comment
   (println "hi")
   (def --pk1 5764801)
   (def --pk2 17807724)
-  (/ 20201227 7)
-  (/ --pk1 7)
-  (/ --pk2 7)
   (def --sn 7)
   (find-loop-size --sn --pk1)
   (find-loop-size --sn --pk2)

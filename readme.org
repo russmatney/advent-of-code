@@ -1,6 +1,6 @@
-#+TITLE: Advent of Code 2020
+#+TITLE: Advent of Code
 
-* Solutions
+* 2020
 ** [[file:src/one/core.clj][Day 1]]: Sums to 2020
 ** [[file:src/two/core.clj][Day 2]]: Password Policy
 ** [[file:src/three/core.clj][Day 3]]: Slope Dreams
@@ -26,3 +26,5 @@
 ** [[file:src/twentythree/core.clj][Day 23]]: Crab Cups?
 ** [[file:src/twentyfour/core.clj][Day 24]]: Hex Tiles
 ** [[file:src/twentyfive/core.clj][Day 25]]: Finally
+* 2021
+** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases

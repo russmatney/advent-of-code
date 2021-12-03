@@ -1,31 +1,31 @@
 #+TITLE: Advent of Code
 
 * 2020
-** [[file:src/one/core.clj][Day 1]]: Sums to 2020
-** [[file:src/two/core.clj][Day 2]]: Password Policy
-** [[file:src/three/core.clj][Day 3]]: Slope Dreams
-** [[file:src/four/core.clj][Day 4]]: The Midnight Parser
-** [[file:src/five/core.clj][Day 5]]: Bored-ing Passes
-** [[file:src/six/core.clj][Day 6]]: Sets'n'stuff
-** [[file:src/seven/core.clj][Day 7]]: Bag Rules
-** [[file:src/eight/core.clj][Day 8]]: Some stuff
-** [[file:src/nine/core.clj][Day 9]]: Sums of last x numbers
-** [[file:src/ten/core.clj][Day 10]]: Adapter hell
-** [[file:src/eleven/core.clj][Day 11]]: Seat's taken
-** [[file:src/twelve/core.clj][Day 12]]: Adrift
-** [[file:src/thirteen/core.clj][Day 13]]: Bus Schedule
-** [[file:src/fourteen/core.clj][Day 14]]: 6 feet and bit masks
-** [[file:src/fifteen/core.clj][Day 15]]: Elf games
-** [[file:src/sixteen/core.clj][Day 16]]: Tix
-** [[file:src/seventeen/core.clj][Day 17]]: [[https://www.wikiwand.com/en/Cube_(film)][Cube (film)]]
-** [[file:src/eighteen/core.clj][Day 18]]: New Maths
-** [[file:src/nineteen/core.clj][Day 19]]: Instaparse!
-** [[file:src/twenty/core.clj][Day 20]]: Monster Search
-** [[file:src/twentyone/core.clj][Day 21]]: Allergens
-** [[file:src/twentytwo/core.clj][Day 22]]: Crab Cards?
-** [[file:src/twentythree/core.clj][Day 23]]: Crab Cups?
-** [[file:src/twentyfour/core.clj][Day 24]]: Hex Tiles
-** [[file:src/twentyfive/core.clj][Day 25]]: Finally
+** [[file:src/_2020/one/core.clj][Day 1]]: Sums to 2020
+** [[file:src/_2020/two/core.clj][Day 2]]: Password Policy
+** [[file:src/_2020/three/core.clj][Day 3]]: Slope Dreams
+** [[file:src/_2020/four/core.clj][Day 4]]: The Midnight Parser
+** [[file:src/_2020/five/core.clj][Day 5]]: Bored-ing Passes
+** [[file:src/_2020/six/core.clj][Day 6]]: Sets'n'stuff
+** [[file:src/_2020/seven/core.clj][Day 7]]: Bag Rules
+** [[file:src/_2020/eight/core.clj][Day 8]]: Some stuff
+** [[file:src/_2020/nine/core.clj][Day 9]]: Sums of last x numbers
+** [[file:src/_2020/ten/core.clj][Day 10]]: Adapter hell
+** [[file:src/_2020/eleven/core.clj][Day 11]]: Seat's taken
+** [[file:src/_2020/twelve/core.clj][Day 12]]: Adrift
+** [[file:src/_2020/thirteen/core.clj][Day 13]]: Bus Schedule
+** [[file:src/_2020/fourteen/core.clj][Day 14]]: 6 feet and bit masks
+** [[file:src/_2020/fifteen/core.clj][Day 15]]: Elf games
+** [[file:src/_2020/sixteen/core.clj][Day 16]]: Tix
+** [[file:src/_2020/seventeen/core.clj][Day 17]]: [[https://www.wikiwand.com/en/Cube_(film)][Cube (film)]]
+** [[file:src/_2020/eighteen/core.clj][Day 18]]: New Maths
+** [[file:src/_2020/nineteen/core.clj][Day 19]]: Instaparse!
+** [[file:src/_2020/twenty/core.clj][Day 20]]: Monster Search
+** [[file:src/_2020/twentyone/core.clj][Day 21]]: Allergens
+** [[file:src/_2020/twentytwo/core.clj][Day 22]]: Crab Cards?
+** [[file:src/_2020/twentythree/core.clj][Day 23]]: Crab Cups?
+** [[file:src/_2020/twentyfour/core.clj][Day 24]]: Hex Tiles
+** [[file:src/_2020/twentyfive/core.clj][Day 25]]: Finally
 * 2021
 ** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases
 ** [[file:src/_2021/two/core.clj][Day 2]]: Steering

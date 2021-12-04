@@ -4,6 +4,7 @@
 ** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases
 ** [[file:src/_2021/two/core.clj][Day 2]]: Steering
 ** [[file:src/_2021/three/core.clj][Day 3]]: Binary Diagnostic
+** [[file:src/_2021/four/core.clj][Day 4]]: Squid Bingo
 * 2020
 ** [[file:src/_2020/one/core.clj][Day 1]]: Sums to 2020
 ** [[file:src/_2020/two/core.clj][Day 2]]: Password Policy

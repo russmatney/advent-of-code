@@ -7,3 +7,4 @@ tmp/
 .nrepl-port
 
 .clj-kondo/.cache
+.lsp/

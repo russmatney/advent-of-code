@@ -75,9 +75,7 @@
   (set/subset? #{24 4 21 17 14} #{9 22 4 14 21 17 25 15 7 5 18 12 13 24 6 0 11 2 16 10 23})
 
   ;; first board to win
-  (let [{:keys [boards numbers]} (parse "input.txt")
-        _                        (def boards boards)
-        _                        (def numbers numbers)]
+  (let [{:keys [boards numbers]} (parse "input.txt")]
     (loop [remaining numbers
            in-play   #{}
            last-num  nil]
@@ -104,9 +102,7 @@
 (comment
 
   ;; last board to win
-  (let [{:keys [boards numbers]} (parse "example.txt")
-        _                        (def boards boards)
-        _                        (def numbers numbers)]
+  (let [{:keys [boards numbers]} (parse "example.txt")]
     (loop [remaining numbers
            in-play   #{}
            last-num  nil

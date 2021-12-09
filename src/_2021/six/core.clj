@@ -75,6 +75,9 @@
        ((fn [m] (zipmap (keys m)
                         (->> m vals (map count))))))
 
+  (->> (initial "example.txt")
+       (frequencies))
+
   (fish-timers "example.txt")
   (fish-timers "input.txt")
 

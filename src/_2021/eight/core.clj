@@ -53,6 +53,7 @@
         (set/subset? seven (set signal)) 0
         :else                            6)
 
+      ;; 2 3 5
       (#{5} len)
       (cond
         (set/subset? one (set signal)) 3
@@ -113,17 +114,11 @@
   (->>
     (parse "example.txt")
     (map decode-line)
-    (map #(->> % (apply str) read-string))
-    (apply +)))
+    (map #(->> % (apply str) (Integer.)))
+    (apply +))
 
-(defn parse-string
-  "Handles the leading 0 case"
-  [s]
-  (Integer. (re-find  #"\d+" s )))
-
-(comment
   (->>
     (parse "input.txt")
     (map decode-line)
-    (map #(->> % (apply str) parse-string))
+    (map #(->> % (apply str) (Integer.)))
     (apply +)))

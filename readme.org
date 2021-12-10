@@ -9,6 +9,7 @@
 ** [[file:src/_2021/six/core.clj][Day 6]]: Lanternfish
 ** [[file:src/_2021/seven/core.clj][Day 7]]: Crab Alignment
 ** [[file:src/_2021/eight/core.clj][Day 8]]: Seven Segment Decoding
+** [[file:src/_2021/nine/core.clj][Day 9]]: Basins
 * 2020
 ** [[file:src/_2020/one/core.clj][Day 1]]: Sums to 2020
 ** [[file:src/_2020/two/core.clj][Day 2]]: Password Policy

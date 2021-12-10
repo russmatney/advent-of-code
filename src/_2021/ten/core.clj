@@ -1,5 +1,6 @@
 (ns _2021.ten.core
-  (:require [util :refer [input]]))
+  (:require [util :refer [input]]
+            [clojure.set :as set]))
 
 
 (comment
@@ -26,6 +27,8 @@
    \} \{
    \] \[
    \> \<})
+
+(def openers->closers (set/map-invert closers->openers))
 
 (def is-opener? #{\( \{ \[ \<})
 
@@ -65,3 +68,62 @@
     (map corrupted-by)
     (map closers->score)
     (apply +)))
+
+
+;; part 2
+
+(defn non-corrupt-lines [f]
+  (->> f parse
+       (remove corrupted-by)
+       )
+  )
+
+(comment
+  (count
+    (non-corrupt-lines "example.txt"))
+  )
+
+(defn unclosed-openers [line]
+  (loop [seen-openers []
+         line         line]
+    (if-not (seq line)
+      seen-openers
+      (let [next (first line)
+            rst  (rest line)]
+        ;; (println "seen-openers" seen-openers)
+        (cond
+          (is-opener? next)
+          (recur (cons next seen-openers) rst)
+
+          ;; is-closer?
+          (closers->openers next)
+          (let [matching-opener (closers->openers next)]
+            (if (#{matching-opener} (first seen-openers))
+              (recur (rest seen-openers) rst)
+              ;; corrupted!
+              next))
+
+          :else :wut)))))
+
+(def closers->score2
+  {\) 1
+   \} 3
+   \] 2
+   \> 4})
+
+(defn to-score [closers]
+  (reduce
+    (fn [score closer]
+      (+ (* 5 score) (closers->score2 closer)))
+    0
+    closers))
+
+(comment
+  (->>
+    "example.txt"
+    non-corrupt-lines
+    (map unclosed-openers)
+    (map (fn [ops] (map openers->closers ops)))
+    (map to-score)
+    )
+  )

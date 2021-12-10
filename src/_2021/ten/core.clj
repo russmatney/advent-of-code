@@ -2,20 +2,6 @@
   (:require [util :refer [input]]
             [clojure.set :as set]))
 
-
-(comment
-
-  (input "example.txt")
-  (input "input.txt"))
-
-(defn parse [f]
-  (->> f input)
-  )
-
-(comment
-  (parse "example.txt")
-  (parse "input.txt"))
-
 (def closers->score
   {\) 3
    \} 1197
@@ -50,20 +36,13 @@
             (if (#{matching-opener} (first seen-openers))
               (recur (rest seen-openers) rst)
               ;; corrupted!
-              next))
-
-          :else :wut)))))
+              next)))))))
 
 (comment
-
-  (let [my-stack [4 3 2]]
-    (cons 5 my-stack)
-    )
-
   (corrupted-by "{([(<{}[<>[]}>{[]{[(<()>")
 
   (->>
-    (parse "input.txt")
+    (input "input.txt")
     (filter corrupted-by)
     (map corrupted-by)
     (map closers->score)
@@ -72,17 +51,7 @@
 
 ;; part 2
 
-(defn non-corrupt-lines [f]
-  (->> f parse
-       (remove corrupted-by)
-       )
-  )
-
-(comment
-  (count
-    (non-corrupt-lines "example.txt"))
-  )
-
+;; same function as above, just return the openers instead of nil
 (defn unclosed-openers [line]
   (loop [seen-openers []
          line         line]
@@ -90,7 +59,6 @@
       seen-openers
       (let [next (first line)
             rst  (rest line)]
-        ;; (println "seen-openers" seen-openers)
         (cond
           (is-opener? next)
           (recur (cons next seen-openers) rst)
@@ -101,9 +69,7 @@
             (if (#{matching-opener} (first seen-openers))
               (recur (rest seen-openers) rst)
               ;; corrupted!
-              next))
-
-          :else :wut)))))
+              next)))))))
 
 (def closers->score2
   {\) 1
@@ -115,15 +81,18 @@
   (reduce
     (fn [score closer]
       (+ (* 5 score) (closers->score2 closer)))
-    0
-    closers))
+    0 closers))
 
 (comment
-  (->>
-    "example.txt"
-    non-corrupt-lines
-    (map unclosed-openers)
-    (map (fn [ops] (map openers->closers ops)))
-    (map to-score)
-    )
-  )
+  (let [scores
+        (->>
+          "input.txt"
+          input
+          (remove corrupted-by)
+          (map unclosed-openers)
+          (map (fn [ops] (map openers->closers ops)))
+          (map to-score)
+          sort
+          vec)
+        middle-n (/ (dec (count scores)) 2)]
+    (nth scores middle-n)))

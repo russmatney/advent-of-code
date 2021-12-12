@@ -11,6 +11,8 @@
 ** [[file:src/_2021/eight/core.clj][Day 8]]: Seven Segment Decoding
 ** [[file:src/_2021/nine/core.clj][Day 9]]: Basins
 ** [[file:src/_2021/ten/core.clj][Day 10]]: BRACKETS
+** [[file:src/_2021/eleven/core.clj][Day 11]]: Octopus Flashes
+** [[file:src/_2021/twelve/core.clj][Day 12]]: Cave Path
 * 2020
 ** [[file:src/_2020/one/core.clj][Day 1]]: Sums to 2020
 ** [[file:src/_2020/two/core.clj][Day 2]]: Password Policy

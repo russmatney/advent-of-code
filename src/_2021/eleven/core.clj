@@ -1,6 +1,8 @@
 (ns _2021.eleven.core
-  (:require [util :refer [input]]
-            [clojure.set :as set]))
+  (:require
+   [util :refer [input]]
+   [grid]
+   [clojure.set :as set]))
 
 
 (defn parse [f]
@@ -11,36 +13,21 @@
 (def example-rows (parse "example.txt"))
 (def input-rows (parse "input.txt"))
 
-(defn num-at [rows {:keys [x y]}]
-  (when-let [row (nth rows y nil)]
-    (when-let [num (nth row x nil)]
-      num)))
-
 (defn set-at [rows {:keys [x y]} f]
   (update rows y #(update % x (fn [v] (f v)))))
 
 (comment
   (set-at example-rows {:x 0 :y 0} (fn [_] "wut"))
-  (set-at example-rows {:x 1 :y 1} inc))
+  (set-at example-rows {:x 1 :y 1} inc)
 
-
-(defn valid-neighbors [rows {:keys [x y]}]
-  (for [nx    (range (dec x) (inc (inc x)))
-        ny    (range (dec y) (inc (inc y)))
-        :when (and (num-at rows {:x nx :y ny})
-                   ;; exclude the passed coord
-                   (not (and (#{nx} x) (#{ny} y))))]
-    {:x nx :y ny}))
-
-(comment
-  (valid-neighbors example-rows {:x 0 :y 0})
-  (valid-neighbors example-rows {:x 1 :y 1})
-  (valid-neighbors example-rows {:x 2 :y 3}))
+  (grid/valid-neighbors example-rows {:x 0 :y 0})
+  (grid/valid-neighbors example-rows {:x 1 :y 1})
+  (grid/valid-neighbors example-rows {:x 2 :y 3}))
 
 (defn all-coords [rows]
   (for [x     (range (count rows))
         y     (range (count (first rows)))
-        :when (num-at rows {:x x :y y})]
+        :when (grid/num-at rows {:x x :y y})]
     {:x x :y y}))
 
 (defn inc-at
@@ -48,7 +35,7 @@
   Returns the updated rows and the number of flashes."
   ([rows coord] (inc-at rows coord #{}))
   ([rows coord flashed]
-   (let [val (num-at rows coord)]
+   (let [val (grid/num-at rows coord)]
      (if-not (#{9} val)
        {:rows    (if (flashed coord)
                    rows
@@ -57,7 +44,7 @@
         :flashed flashed}
 
        ;; flashing!
-       (let [neighbors (valid-neighbors rows coord)
+       (let [neighbors (grid/valid-neighbors rows coord)
              rows      (set-at rows coord (constantly 0))]
          ;; TODO make sure 'flashed' coords don't get incremented above 0
          (reduce

@@ -49,9 +49,7 @@
     (do-steps n data)
     seq
     (group-by identity)
-    (map (comp count second))
-    )
-  )
+    (map (comp count second))))
 
 (comment
   (do-steps 1 ex-data)

@@ -15,6 +15,7 @@
 ** [[file:src/_2021/twelve/core.clj][Day 12]]: Cave Path
 ** [[file:src/_2021/thirteen/core.clj][Day 13]]: Folding
 ** [[file:src/_2021/fourteen/core.clj][Day 14]]: Polymer Insertion
+** [[file:src/_2021/fifteen/core.clj][Day 15]]: Risky Path
 * 2020
 ** [[file:src/_2020/one/core.clj][Day 1]]: Sums to 2020
 ** [[file:src/_2020/two/core.clj][Day 2]]: Password Policy

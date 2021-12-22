@@ -16,6 +16,9 @@
 ** [[file:src/_2021/thirteen/core.clj][Day 13]]: Folding
 ** [[file:src/_2021/fourteen/core.clj][Day 14]]: Polymer Insertion
 ** [[file:src/_2021/fifteen/core.clj][Day 15]]: Risky Path
+** [[file:src/_2021/sixteen/core.clj][Day 16]]: Hexadecimal
+** [[file:src/_2021/seventeen/core.clj][Day 17]]: Trick Shot
+** [[file:src/_2021/eighteen/core.clj][Day 18]]: Snailfish
 * 2020
 ** [[file:src/_2020/one/core.clj][Day 1]]: Sums to 2020
 ** [[file:src/_2020/two/core.clj][Day 2]]: Password Policy

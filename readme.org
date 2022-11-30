@@ -1,5 +1,16 @@
 #+TITLE: Advent of Code
 
+* 2022
+** [[file:src/_2022/_01/core.clj][Day 1]]
+** [[file:src/_2022/_02/core.clj][Day 2]]
+** [[file:src/_2022/_03/core.clj][Day 3]]
+** [[file:src/_2022/_04/core.clj][Day 4]]
+** [[file:src/_2022/_05/core.clj][Day 5]]
+** [[file:src/_2022/_06/core.clj][Day 6]]
+** [[file:src/_2022/_07/core.clj][Day 7]]
+** [[file:src/_2022/_08/core.clj][Day 8]]
+** [[file:src/_2022/_09/core.clj][Day 9]]
+** [[file:src/_2022/_10/core.clj][Day 10]]
 * 2021
 ** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases
 ** [[file:src/_2021/two/core.clj][Day 2]]: Steering

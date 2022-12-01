@@ -1,7 +1,5 @@
-{
- :paths   ["src"]
+{:paths   ["src"]
  :deps    {org.clojure/math.combinatorics {:mvn/version "0.1.6"}
            wing/wing                      {:mvn/version "0.1.4"}
            instaparse/instaparse          {:mvn/version "1.4.10"}}
- :aliases {}
- }
+ :aliases {}}

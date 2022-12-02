@@ -44,8 +44,8 @@
   )
 
 (defn badge-style []
-  {"color"      "00cc00" ;; right side
-   "labelColor" "0a0e25" ;; left side
+  {"color"      "009900" ;; right side
+   "labelColor" "0f0f23" ;; left side
    "style"      "flat"
    "logo"       (str "data:image/png;base64," (slurp "badges/aoc-favicon-base64"))})
 

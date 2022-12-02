@@ -1,7 +1,6 @@
 (ns _2021.thirteen.core
   (:require [util :refer [input]]
-            [clojure.string :as string]
-            [wing.core :as w]))
+            [clojure.string :as string]))
 
 (defn parse-points [points]
   (->> points
@@ -28,7 +27,7 @@
   (parse "example.txt")
   (parse "input.txt"))
 
-(def ex-data (parse "example.txt"))
+(def _ex-data (parse "example.txt"))
 (def inp-data (parse "input.txt"))
 
 (defn fold [val n]

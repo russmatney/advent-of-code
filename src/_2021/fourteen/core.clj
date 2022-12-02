@@ -19,7 +19,7 @@
           {:template (first template)
            :rules    (->> rules (map parse-rule) (into {}))}))))
 
-(def ex-data (parse "example.txt"))
+(def _ex-data (parse "example.txt"))
 (def input-data (parse "input.txt"))
 
 (defn apply-rules [rules polymer]

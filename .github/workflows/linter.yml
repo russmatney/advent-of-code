@@ -1,0 +1,15 @@
+name: Clj-kondo linting
+on: push
+jobs:
+  Linter:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup clj-kondo
+      uses: DeLaGuardo/setup-clojure@10.0
+      with:
+        clj-kondo: '2022.11.02'
+
+    - name: Lint
+      run: clj-kondo --lint src --config '{:output {:pattern "::{{level}} file={{filename}},line={{row}},col={{col}}::{{message}}"}}'

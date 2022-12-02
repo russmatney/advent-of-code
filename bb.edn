@@ -9,4 +9,6 @@
    :org.babashka/cli {:coerce {:nses [:symbol]
                                :vars [:symbol]}}}
 
+  linter (shell "clj-kondo --lint src")
+
   badges (tasks/gen-badges)}}

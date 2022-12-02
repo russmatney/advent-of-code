@@ -7,11 +7,11 @@
 (def example (parse "example.txt"))
 (def puzz-input (parse "input.txt"))
 
-(defn abs [v] (if (neg? v) (* -1 v) v))
+(defn my-abs [v] (if (neg? v) (* -1 v) v))
 
 (defn calc-total-fuel [example target]
   (->> example
-       (map (comp abs #(- % target)))
+       (map (comp my-abs #(- % target)))
        (apply +)))
 
 (comment
@@ -42,7 +42,7 @@
 
 (defn calc-total-fuel-2 [example target]
   (->> example
-       (map (comp abs #(- % target)))
+       (map (comp my-abs #(- % target)))
        (map fuel-cost)
        (apply +)))
 

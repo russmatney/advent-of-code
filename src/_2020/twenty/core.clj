@@ -299,11 +299,10 @@
                 (#{:left :right} match-side))
            (flip-tile :vertical t)
 
-           (or
-             ;; (and (#{:right} side)
-             ;;      (#{:bottom :top} match-side))
-             (and (#{:bottom :right} side)
-                  (#{:top :bottom} match-side)))
+           ;; (and (#{:right} side)
+           ;;      (#{:bottom :top} match-side))
+           (and (#{:bottom :right} side)
+                (#{:top :bottom} match-side))
            (flip-tile :horizontal t)
 
            :else t)))

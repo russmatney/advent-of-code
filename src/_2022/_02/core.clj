@@ -1,6 +1,8 @@
 (ns _2022._02.core
-  (:require [util :as util :refer [input]]
-            [clojure.string :as string]))
+  (:require [util :as util]))
+
+(defn input [fname]
+  (util/parse-input (str "src/_2022/_02/" fname) {:split? true}))
 
 (comment
   (input "example.txt")
@@ -28,22 +30,14 @@
   (+ (choice-score us)
      (win-score [them us])))
 
-(comment
-  (score "A" "Y")
-  (score "B" "X")
-  (score "C" "Z"))
-
 (defn total [data]
   (->> data
        (map #(apply score %))
        (reduce +)))
 
 (comment
-  (total (->> (input "example.txt")
-              (map #(string/split % #" "))))
-
-  (total (->> (input "input.txt")
-              (map #(string/split % #" ")))))
+  (total (input "example.txt"))
+  (total (input "input.txt")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part 2
@@ -70,8 +64,5 @@
        (reduce +)))
 
 (comment
-  (total-2 (->> (input "example.txt")
-                (map #(string/split % #" "))))
-
-  (total-2 (->> (input "input.txt")
-                (map #(string/split % #" ")))))
+  (total-2 (input "example.txt"))
+  (total-2 (input "input.txt")))

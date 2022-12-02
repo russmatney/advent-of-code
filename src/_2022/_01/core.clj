@@ -1,13 +1,11 @@
 (ns _2022._01.core
-  (:require [util :refer [input]]))
+  (:require [util :as util]))
+
+(defn input [fname]
+  (util/parse-input (str "src/_2022/_01/" fname) {:partition? true :ints? true}))
 
 (defn cal-totals [data]
-  (->> data
-       (util/partition-by-newlines)
-       (map (fn [its]
-              (->> its
-                   (map read-string)
-                   (reduce +))))))
+  (->> data (map #(reduce + %))))
 
 (defn part-one [data]
   (apply max (cal-totals data)))
@@ -28,11 +26,7 @@
 
   (->>
     (input "example.txt")
-    (util/partition-by-newlines)
-    (map (fn [its]
-           (->> its
-                (map read-string)
-                (reduce +))))
+    (map #(reduce + %))
     (sort >)
     (take 3)
     (reduce +)))

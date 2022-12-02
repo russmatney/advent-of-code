@@ -1,5 +1,9 @@
 #+TITLE: Advent of Code
 
+[[./badges/2020.svg]]
+[[./badges/2021.svg]]
+[[./badges/2022.svg]]
+
 * 2022
 ** [[file:src/_2022/_01/core.clj][Day 1]]: Calorie Counting
 ** [[file:src/_2022/_02/core.clj][Day 2]]: Rock Paper Scissors
@@ -60,3 +64,9 @@
 ** [[file:src/_2020/twentythree/core.clj][Day 23]]: Crab Cups?
 ** [[file:src/_2020/twentyfour/core.clj][Day 24]]: Hex Tiles
 ** [[file:src/_2020/twentyfive/core.clj][Day 25]]: Finally
+
+* Badges
+The badges were generated with code based on [[https://github.com/genmeblog/advent-of-code/blob/master/badges/badges.bb][genmeblog's advent of code repo]].
+
+Note that you'll also need to copy the ~badges/aoc-favicon-base64~, and copy
+your cookie into ~resources/.session~ - I pulled this from the browser inspector tools.

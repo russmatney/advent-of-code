@@ -8,3 +8,4 @@ tmp/
 
 .clj-kondo/.cache
 .lsp/
+resources/.session

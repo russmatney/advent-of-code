@@ -1,9 +1,12 @@
-{:paths ["src"]
+{:paths ["src" "resources"]
  :tasks
- {tests
+ {:requires ([tasks :as tasks])
+  tests
   {:extra-deps       {io.github.cognitect-labs/test-runner
                       {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
    :task             (exec 'cognitect.test-runner.api/test)
    :exec-args        {:dirs ["src"]}
    :org.babashka/cli {:coerce {:nses [:symbol]
-                               :vars [:symbol]}}}}}
+                               :vars [:symbol]}}}
+
+  badges (tasks/gen-badges)}}

@@ -39,9 +39,7 @@
   (-> (str "https://adventofcode.com/" "2022")
       (curl/get {:headers {"Cookie" (str "session=" (cookie))}})
       :body
-      (bootleg/convert-to :hickory))
-
-  )
+      (bootleg/convert-to :hickory)))
 
 (defn badge-style []
   {"color"      "009900" ;; right side

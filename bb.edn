@@ -11,4 +11,6 @@
 
   linter (shell "clj-kondo --lint src")
 
-  badges (tasks/gen-badges)}}
+  badges (tasks/gen-badges)
+
+  download-input (do (apply tasks/create-input *command-line-args*))}}

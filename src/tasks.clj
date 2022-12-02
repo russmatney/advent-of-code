@@ -4,6 +4,13 @@
             [babashka.fs :as fs]
             [clojure.string :as str]))
 
+(defn cookie
+  "Expected to be manually created, and session token pulled from logged in browser session."
+  []
+  (when-not (fs/exists? "resources/.session")
+    (fs/create-file "resources/.session"))
+  (str/trim (slurp "resources/.session")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; badge generation
 ;; originally based on:
@@ -14,11 +21,6 @@
 
 (require '[pod.retrogradeorbit.bootleg.utils :as bootleg]
          '[pod.retrogradeorbit.hickory.select :as s])
-
-(defn cookie []
-  (when-not (fs/exists? "resources/.session")
-    (fs/create-file "resources/.session"))
-  (str/trim (slurp "resources/.session")))
 
 (defn get-stars
   "Return a string representing number of stars earned for a given `year`"
@@ -64,6 +66,27 @@
 (defn gen-badges []
   (run! save-badge! yrs))
 
-
 (comment
   (gen-badges))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; input downloading
+;; called via `bb` as `bb download-input 2022 3`
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn leading-zero [day]
+  (if (= 1 (count day)) (str "0" day) day))
+
+(defn get-input [year day]
+  (let [url (str "https://adventofcode.com/" year "/day/" day "/input")]
+    (-> url
+        (curl/get {:headers {"Cookie" (str "session=" (cookie))}})
+        :body)))
+
+(defn create-input [year day]
+  (let [file  (str "src/_" year "/_" (leading-zero day) "/input.txt")
+        input (get-input year day)]
+    (spit file input)))
+
+(comment
+  (create-input "2022" "3"))

@@ -65,8 +65,19 @@
 ** [[file:src/_2020/twentyfour/core.clj][Day 24]]: Hex Tiles
 ** [[file:src/_2020/twentyfive/core.clj][Day 25]]: Finally
 
-* Badges
+* bb tasks
+** Cookie/session
+A session is expected to be manually created and copied into
+~resources/.session~. You can pull this in from the browser's inspector tools.
+** Input downloading
+Based on [[https://github.com/borkdude/advent-of-babashka-template/blob/main/bb/new_day.clj][Borkdude's advent of code template]].
+
+The input file can be downloaded and written to the day's directory via:
+
+#+begin_src sh
+bb download-input 2022 2
+#+end_src
+** Badges
 The badges were generated with code based on [[https://github.com/genmeblog/advent-of-code/blob/master/badges/badges.bb][genmeblog's advent of code repo]].
 
-Note that you'll also need to copy the ~badges/aoc-favicon-base64~, and copy
-your cookie into ~resources/.session~ - I pulled this from the browser inspector tools.
+Note that you'll also need to copy the ~badges/aoc-favicon-base64~.

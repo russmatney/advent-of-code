@@ -7,7 +7,7 @@
 * 2022
 ** [[file:src/_2022/_01/core.clj][Day 1]]: Calorie Counting
 ** [[file:src/_2022/_02/core.clj][Day 2]]: Rock Paper Scissors
-** [[file:src/_2022/_03/core.clj][Day 3]]
+** [[file:src/_2022/_03/core.clj][Day 3]]: Rucksack Reorg
 ** [[file:src/_2022/_04/core.clj][Day 4]]
 ** [[file:src/_2022/_05/core.clj][Day 5]]
 ** [[file:src/_2022/_06/core.clj][Day 6]]

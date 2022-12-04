@@ -3,8 +3,8 @@
    [clojure.java.io :as io]
    [clojure.string :as string]))
 
-(defn parse-split-lines [data]
-  (map #(string/split % #" ") data))
+(defn parse-split-lines [sep data]
+  (map #(string/split % (re-pattern sep)) data))
 
 (defn parse-ints [data]
   (map read-string data))
@@ -16,15 +16,16 @@
 
 (defn parse-input
   ([f] (parse-input f nil))
-  ([f {:keys [split? ints? partition?]}]
-   (let [parsed
+  ([f {:keys [split split? ints? partition?]}]
+   (let [split (or split (when split? " "))
+         parsed
          (-> f
              slurp
              string/split-lines
              (#(map string/trim %)))]
      (cond
-       (and split? ints?)
-       (->> parsed parse-split-lines
+       (and split ints?)
+       (->> parsed (parse-split-lines split)
             (map #(->> % (parse-ints) (into []))))
 
        (and partition? ints?)
@@ -32,7 +33,7 @@
             (map #(->> % (parse-ints) (into []))))
 
        partition? (partition-by-newlines parsed)
-       split?     (parse-split-lines parsed)
+       split      (parse-split-lines split parsed)
        ints?      (parse-ints parsed)
        :else      parsed))))
 

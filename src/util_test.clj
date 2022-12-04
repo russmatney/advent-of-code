@@ -16,6 +16,10 @@
     (is (= (list ["A" "Y"] ["B" "X"] ["C" "Z"])
            (sut/parse-input "src/test_splits.txt" {:split? true}))))
 
+  (testing "splits strings with spaces into vectors"
+    (is (= (list ["A" "Y"] ["B" "X"] ["C" "Z"])
+           (sut/parse-input "src/test_splits_sep.txt" {:split ","}))))
+
   (testing "splits and parses ints"
     (is (= (list [1 2] [3 4] [5 6] [7])
            (sut/parse-input "src/test_splits_and_ints.txt" {:split? true

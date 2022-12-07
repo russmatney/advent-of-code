@@ -5,4 +5,4 @@
            babashka/babashka.curl         {:mvn/version "0.1.2"}
            babashka/babashka.pods         {:mvn/version "0.1.0"}
            babashka/fs                    {:mvn/version "0.2.12"}}
- :aliases {}}
+ :aliases {:dev {:jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}}}

@@ -90,24 +90,72 @@
     (reduce handle-command {:cwd  ""
                             :dirs {}})))
 
-(defn set-dir-files-sizes [state-dirs dir-path]
-  (let [{:keys [file-size dirs]} (get state-dirs dir-path)
-        dir-files-size
-        (+ file-size (->> dirs
-                          (map :dir)
-                          (map (partial set-dir-files-sizes state-dirs))
-                          (map :dir-files-size)
-                          (reduce +)))]
-    (update state-dirs dir-path :dir-files-size dir-files-size)))
-
 (defn handle-commands [f]
   (->>
     (input f)
-    (reduce handle-command {:cwd "" :dirs {}})
-    ))
+    (reduce handle-command {:cwd "" :dirs {}})))
+
+(defn calc-dir-size [state-dirs dir-path]
+  (let [{:keys [files-size dirs]} (get state-dirs dir-path)
+        nested-size               (if (seq dirs)
+                                    (->> dirs
+                                         (map :dir)
+                                         (map (partial calc-dir-size state-dirs))
+                                         (reduce +))
+                                    0)]
+    (+ (or files-size 0) nested-size)))
+
+(defn set-dir-sizes [state]
+  (reduce
+    (fn [state-dirs dir-path]
+      (let [dir-size (calc-dir-size state-dirs dir-path)]
+        (assoc-in state-dirs [dir-path :dir-size] dir-size)))
+    (:dirs state)
+    (->> state :dirs keys)))
+
+
+(defn part1 [f]
+  (->>
+    (handle-commands f)
+    set-dir-sizes
+    (filter (fn [[_path {:keys [dir-size]}]] (> 100000 dir-size)))
+    (map (comp :dir-size second))
+    (reduce +)))
+
+(defn unused-space [dirs]
+  (- 70000000 (-> dirs (get "/") :dir-size)))
+
+(def required-space 30000000)
+
+(defn part2 [f]
+  (let [dir-sizes    (->> f handle-commands set-dir-sizes)
+        unused       (unused-space dir-sizes)
+        required     (- required-space unused)
+        _            (println "unused" unused)
+        _            (println "required" required)
+        large-enough (->> dir-sizes
+                          (filter (comp (fn [size]
+                                          (>= size required))
+                                        :dir-size second)))]
+    (println "ct lg enf" (count large-enough))
+    (->> large-enough
+         (sort-by (comp :dir-size second) <)
+         first)))
 
 (comment
-  (let [state (handle-commands "example.txt")]
-    (reduce set-dir-files-sizes (:dirs state) (->> state :dirs keys)))
+  (part2 "example.txt")
+  (part2 "input.txt")
+  ;; 4415 too low
+  (->>
+    "input.txt"
+    handle-commands
+    set-dir-sizes)
 
-  (handle-commands "input.txt"))
+  (get *1 "/")
+
+  (- 70000000 48381165)
+
+  (-> "input.txt"
+      handle-commands
+      set-dir-sizes
+      unused-space))

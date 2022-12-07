@@ -1,6 +1,6 @@
 (ns _2022._07.core
-  (:require [util :as util]
-            [clojure.string :as string]))
+  (:require
+   [clojure.string :as string]))
 
 (defn input [f]
   (->
@@ -19,19 +19,12 @@
   (let [dir (-> cmd (string/split #" ") second)]
     (update state :cwd
             (cond
-              (#{".."} dir)
-              (fn [cwd]
-                (string/replace cwd (-> (re-seq #"\/([a-z]*\/)$" cwd) first second) ""))
-
-              (#{"/"} dir) (constantly "/")
-
-              :else
-              (fn [cwd]
-                (->>
-                  ;; TODO compress/handle ..
-                  (str cwd dir "/")))))))
+              (#{".."} dir) (fn [cwd] (->> cwd butlast (into [])))
+              (#{"/"} dir)  (constantly ["/"])
+              :else         (fn [cwd] (->> (concat cwd [dir]) (into [])))))))
 
 (comment
+  (-> ["/" "a" "b"] butlast (into []) (concat ["c"]))
 
   (re-seq #"\/([a-z]*\/)$" "/a/b/c/d/e/")
 
@@ -39,11 +32,11 @@
   (handle-cd {:cwd "/"} "cd /")
   (handle-cd {:cwd "/a"} "cd /")
   (handle-cd {:cwd ""} "cd a")
-  (handle-cd {:cwd "a/"} "cd b")
-  (handle-cd {:cwd "a/b/"} "cd b")
-  (handle-cd {:cwd "a/b/"} "cd ..")
-  (handle-cd {:cwd "aaaa/bbb/ccc/baadfsd/"} "cd ..")
-  (handle-cd {:cwd "aaaa/bbb/ccc/baadfsd/"} "cd /")
+  (handle-cd {:cwd ["/" "a"]} "cd b")
+  (handle-cd {:cwd ["a" "b"]} "cd b")
+  (handle-cd {:cwd ["a" "b"]} "cd ..")
+  (handle-cd {:cwd ["aaaa" "bbb" "cc"]} "cd ..")
+  (handle-cd {:cwd ["aaaa" "bbb" "cc"]} "cd /")
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,20 +44,19 @@
 
 ;; parse file
 
-(defn parse-ls-file [state ls-file]
-  (let [[size fname] (-> (re-seq #"^(\d+) (.*)$" ls-file)
-                         first rest)]
-    {:size     (read-string size)
-     :filename (str (:cwd state) fname)}))
+(defn parse-ls-file [_state ls-file]
+  (let [[size] (-> (re-seq #"^(\d+) (.*)$" ls-file)
+                   first rest)]
+    {:size (read-string size)}))
 
-(comment (parse-ls-file {:cwd "/"} "436456 s.log"))
+(comment (parse-ls-file {:cwd ["/"]} "436456 s.log"))
 
 ;; parse dir
 
 (defn parse-ls-dir [state ls-file]
-  (let [dir (-> (re-seq #"^dir (.*)$" ls-file)
+  (let [dir (-> (re-seq #"^dir (.+)$" ls-file)
                 first last)]
-    {:dir (str (:cwd state) dir "/")}))
+    (into [] (concat (:cwd state) [dir]))))
 
 (defn handle-ls [state cmd]
   (let [contents   (-> cmd string/split-lines rest)
@@ -77,10 +69,9 @@
         dirs       (->> contents
                         (filter #(re-seq #"^dir" %))
                         (map (partial parse-ls-dir state))
-                        seq)]
+                        (into #{}))]
     (assoc-in state [:dirs (:cwd state)]
               {:dirs       dirs
-               :files      files
                :files-size (or files-size 0)})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -98,19 +89,21 @@
 (comment
   (->>
     (input "example.txt")
-    (reduce handle-command {:cwd  ""
-                            :dirs {}})))
+    (reduce handle-command {:cwd [] :dirs {}}))
+
+  (->>
+    (input "input.txt")
+    (reduce handle-command {:cwd [] :dirs {}})))
 
 (defn handle-commands [f]
   (->>
     (input f)
-    (reduce handle-command {:cwd "" :dirs {}})))
+    (reduce handle-command {:cwd [] :dirs {}})))
 
 (defn calc-dir-size [state-dirs dir-path]
   (let [{:keys [files-size dirs]} (get state-dirs dir-path)
         nested-size               (if (seq dirs)
                                     (->> dirs
-                                         (map :dir)
                                          (map (partial calc-dir-size state-dirs))
                                          (reduce +))
                                     0)]
@@ -132,6 +125,9 @@
     (:dirs state)
     (->> state :dirs keys)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; part 1
+
 (defn part1 [f]
   (->>
     (handle-commands f)
@@ -143,18 +139,13 @@
 (comment
   (part1 "example.txt")
   (part1 "input.txt")
-  *1
-  )
+  *1)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; part 2
 
 (defn used-space [dirs]
-  #_(-> dirs (get "/") :dir-size)
-  (->> dirs
-       vals
-       (tree-seq (constantly true) :files)
-       (mapcat identity)
-       (mapcat :files)
-       (map :size)
-       (reduce +)))
+  (-> dirs (get ["/"]) :dir-size))
 
 (defn unused-space [dirs]
   (- 70000000 (used-space dirs)))
@@ -165,13 +156,9 @@
   (let [dir-sizes    (-> f handle-commands set-dir-sizes)
         unused       (unused-space dir-sizes)
         required     (- required-space unused)
-        _            (println "unused" unused)
-        _            (println "required" required)
         large-enough (->> dir-sizes
-                          (filter (comp (fn [size]
-                                          (>= size required))
+                          (filter (comp (fn [size] (>= size required))
                                         :dir-size second)))]
-    (println "ct lg enf" (count large-enough))
     (->> large-enough
          (sort-by (comp :dir-size second) <)
          first)))
@@ -181,13 +168,14 @@
   (part2 "input.txt")
   ;; 4415 too low
   ;; 4420059 too low
+  ;; 5025657
   (->>
     "input.txt"
     handle-commands
     set-dir-sizes
     #_unused-space)
 
-  (get *1 "/")
+  (get *1 ["/"])
 
   (- 70000000 48381165)
   (- 70000000 44274331)

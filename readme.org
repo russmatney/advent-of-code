@@ -11,7 +11,7 @@
 ** [[file:src/_2022/_04/core.clj][Day 4]]: Camp Cleanup
 ** [[file:src/_2022/_05/core.clj][Day 5]]: Supply Stacks
 ** [[file:src/_2022/_06/core.clj][Day 6]]: Tuning Trouble
-** [[file:src/_2022/_07/core.clj][Day 7]]
+** [[file:src/_2022/_07/core.clj][Day 7]]: No Space Left On Device
 ** [[file:src/_2022/_08/core.clj][Day 8]]
 ** [[file:src/_2022/_09/core.clj][Day 9]]
 ** [[file:src/_2022/_10/core.clj][Day 10]]

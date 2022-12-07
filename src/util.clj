@@ -16,13 +16,13 @@
 
 (defn parse-input
   ([f] (parse-input f nil))
-  ([f {:keys [split split? ints? partition? trim?]}]
+  ([f {:keys [skip-split-lines? split split? ints? partition? trim?]}]
    (let [split (or split (when split? " "))
          parsed
          (cond-> f
-           true  slurp
-           true  string/split-lines
-           trim? (#(map string/trim %)))]
+           true                    slurp
+           (not skip-split-lines?) string/split-lines
+           trim?                   (#(map string/trim %)))]
      (cond
        (and split ints?)
        (->> parsed (parse-split-lines split)

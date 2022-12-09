@@ -45,7 +45,9 @@
               :to    to})))))
 
 (comment
-  (-> (re-seq #"move (\d)" "move 1 from 2 to 1") first second)
+  (-> (re-seq #"move (\d+) from (\d) to (\d)" "move 1 from 2 to 1") first second)
+  (re-seq #"move (\d+) from (\d) to (\d)" "move 1 from 2 to 1")
+  ;; (["move 1 from 2 to 1" "1" "2" "1"])
   (-> (input "example.txt") moves))
 
 (defn process-move

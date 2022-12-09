@@ -117,3 +117,19 @@
 (comment
   (most-scenic-tree "example.txt")
   (most-scenic-tree "input.txt"))
+
+
+(comment
+  (re-seq #"\w+" "hello there [bracket text]")
+  ;; => ("hello" "there" "bracket" "text")
+
+  (re-seq #"\[([ |\w]+)\]" "hello there [bracket text] [more bracket text]")
+  ;; => (["[bracket text]" "bracket text"] ["[more bracket text]" "more bracket text"])
+
+  (->> "some-str" (re-seq #"\w+"))
+  ;; ("some" "str")
+  (->> "some-str" (re-seq #"(\w+)"))
+  ;; (["some" "some"] ["str" "str"])
+  (->> "some-str" (re-seq #"s(\w+)"))
+  ;; (["some" "ome"] ["str" "tr"])
+  )

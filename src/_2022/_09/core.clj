@@ -272,3 +272,74 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rewrite
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn next-tail-pos
+  "Returns an updated `pos` relative to the passed `head-pos`"
+  [pos head-pos]
+  (let [ht-diff         (vec-sub head-pos pos)
+        ht-dist         (->> ht-diff (map abs) (apply max))
+        [diff-x diff-y] ht-diff
+        [pos-x pos-y]   pos
+        diff-x          (cond (pos? diff-x) 1
+                              (neg? diff-x) -1
+                              :else         0)
+        diff-y          (cond (pos? diff-y) 1
+                              (neg? diff-y) -1
+                              :else         0)]
+    (if (<= ht-dist 1)
+      pos
+      [(+ pos-x diff-x) (+ pos-y diff-y)])))
+
+(comment
+  (next-tail-pos [0 0] [1 0])
+  (next-tail-pos [1 0] [3 1])
+  (next-tail-pos [-1 0] [-3 -1]))
+
+(defn pull-rope [rope dir]
+  (let [diff (dir->diff dir)]
+    (reduce
+      (fn [new-rope knot-pos]
+        (let [next-knot-pos
+              (if (zero? (count new-rope))
+                (vec-add diff knot-pos)
+                (next-tail-pos knot-pos (peek new-rope)))]
+          (into [] (concat new-rope [next-knot-pos]))))
+      [] rope)))
+
+(comment
+  (peek [[0 0] [0 1] [1 0]])
+
+  (->
+    [[0 0] [0 0] [0 0] [0 0]]
+    (pull-rope :right)
+    (pull-rope :down)
+    (pull-rope :down)
+    (pull-rope :down)
+    (pull-rope :down)
+    (pull-rope :right)
+    (pull-rope :right)))
+
+(comment
+  (motions "example.txt")
+  (motions "example2.txt")
+
+  (dir->diff :right)
+  (dir->diff :down)
+
+  (->>
+    (motions "input.txt")
+    (mapcat (fn [[dir ct]] (repeat ct dir)))
+    (reduce
+      (fn [{:keys [rope] :as state} dir]
+        (let [new-rope      (pull-rope rope dir)
+              tail-position (peek new-rope)]
+          (-> state
+              (assoc :rope new-rope)
+              (update :tail-visits conj tail-position))))
+      {:rope        (into [] (repeat 10 [0 0]))
+       :tail-visits #{[0 0]}})
+    :tail-visits
+    count))
+
+(comment
+  (repeat 10 [0 0]))

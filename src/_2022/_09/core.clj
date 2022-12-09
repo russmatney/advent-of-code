@@ -165,25 +165,61 @@
            [i initial-state]))
     (into {})))
 
-(defn move-first-knot [ten-state dir]
+(defn move-tail-2
+  "updates the passed `state` based on the previous `head-state`."
+  [state head-state]
+  (let [ht-diff (vec-sub (:head-position head-state) (:tail-position state))
+        ht-dist (->> ht-diff (map abs) (apply max))]
+    (cond
+      ;; no change
+      (<= ht-dist 1) state
+
+      ;; diagonal
+      ;; (and
+      ;;   (> 0 (abs (first ht-diff)))
+      ;;   (> 0 (abs (second ht-diff))))
+      ;; (-> state
+      ;;     (update :head-position
+      ;;             (fn [[x y]]
+      ;;               [(+ (first ht-diff) x)
+      ;;                (+ (second ht-diff) y)]))
+      ;;     (update :tail-position
+      ;;             (fn [[x y]]
+      ;;               [(+ (first ht-diff) x)
+      ;;                (+ (second ht-diff) y)])))
+
+      :else
+      (let [
+            ;; new-tail-pos (vec-add ht-diff tail-position)
+            new-tail-pos (:head-position head-state)
+            ]
+        (-> state
+            (assoc :tail-position new-tail-pos)
+            ;; redundant, but fine
+            (update :tail-visits conj new-tail-pos)))))  )
+
+(comment
+  (move-tail-2 (->
+                 initial-state
+                 (move-head :right))
+               (-> initial-state
+                   (move-head :right)
+                   (move-head :right)))
+  )
+
+(defn move-rope
+  "Moves every knot in the rop by pulling the head once in a `dir`ection."
+  [ten-state dir]
   (->> ten-state
        (sort-by first)
        (reduce (fn [t-state [i single-knot-state]]
                  (let [head-state (get t-state (dec i))
                        new-single-knot-state
                        (cond (not head-state)
-                             (-> single-knot-state
-                                 (assoc :prev-tail-position (:tail-position single-knot-state))
-                                 (move-head dir))
+                             (move-head single-knot-state dir)
 
                              head-state
-                             (-> single-knot-state
-                                 (assoc :head-position (:tail-position head-state))
-                                 ;; TODO determine next tail position with new head position
-                                 ;; not as sure on this part
-                                 (assoc :prev-tail-position (:tail-position single-knot-state))
-                                 (assoc :prev-head-position (:head-position single-knot-state))
-                                 move-tail))]
+                             (move-tail-2 single-knot-state head-state))]
                    ;; (println "knot" i)
                    ;; (println "\nhead-state" head-state)
                    ;; (println "\nnew-state" new-single-knot-state)
@@ -193,17 +229,12 @@
 
 (comment
   (-> ten-knot-state
-      (move-first-knot :right)
-      (move-first-knot :right)
-      (move-first-knot :right)
-      (move-first-knot :right)
-      (move-first-knot :up)
-      (move-first-knot :up)
-      (move-first-knot :up)
-      (move-first-knot :up)
-      (move-first-knot :left)
-      (move-first-knot :left)
-      (move-first-knot :left)
+      (move-rope :right)
+      (move-rope :right)
+      (move-rope :right)
+      (move-rope :right)
+      (move-rope :up)
+      (move-rope :up)
 
       (get 3)
       draw-tail-visits
@@ -211,28 +242,33 @@
       )
   )
 
-(defn move-ten-knot-rope [ms]
+(defn move-rope-ms [ms]
   (->> ms
        (reduce
          (fn [state [dir ct]]
            (reduce
              (fn [state _i]
-               (move-first-knot state dir))
+               (move-rope state dir))
              state
              (range ct)))
          ten-knot-state)))
 
 (comment
   (-> "example.txt"
-      motions move-ten-knot-rope
+      motions move-rope-ms
       (get 9)
       (doto (#(-> % draw-tail-visits println)))
       :tail-visits count)
 
   (-> "example2.txt"
-      motions move-ten-knot-rope
+      motions move-rope-ms
       (get 9)
       (doto (#(-> % draw-tail-visits println)))
       :tail-visits
       count)
   )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; rewrite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

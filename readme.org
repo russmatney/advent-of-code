@@ -13,7 +13,7 @@
 ** [[file:src/_2022/_06/core.clj][Day 6]]: Tuning Trouble
 ** [[file:src/_2022/_07/core.clj][Day 7]]: No Space Left On Device
 ** [[file:src/_2022/_08/core.clj][Day 8]]: Treetop Tree House
-** [[file:src/_2022/_09/core.clj][Day 9]]:
+** [[file:src/_2022/_09/core.clj][Day 9]]: Rope Bridge
 ** [[file:src/_2022/_10/core.clj][Day 10]]
 * 2021
 ** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases

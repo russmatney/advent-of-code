@@ -73,13 +73,16 @@
 (defn worry-drop [n]
   (int (/ n 3)))
 
-(defn inspect-item [monkeys m]
+(defn inspect-item [{:keys [part-1] :as monkeys} m]
   (let [{:keys [items worry-op next-m]
          :as   _monkey} (get monkeys m)
         items           (->> items (apply list))
         new-items       (pop items)
         item            (peek items)
-        new-worry-level (-> item worry-op worry-drop)
+        new-worry-level (-> item worry-op)
+        new-worry-level (if part-1
+                          (-> new-worry-level worry-drop)
+                          new-worry-level)
         next-monkey     (next-m new-worry-level)]
     (-> monkeys
         (assoc-in [m :items] new-items)
@@ -109,22 +112,26 @@
 (comment
   (full-round (monkeys "example.txt")))
 
-(defn sim-rounds [f n]
-  (let [monkeys (monkeys f)]
+(defn sim-rounds [f n part-1]
+  (let [monkeys (monkeys f)
+        monkeys (if part-1
+                  (assoc monkeys :part-1 true)
+                  monkeys)]
     (->> (range n)
          (reduce (fn [mks _] (full-round mks)) monkeys))))
 
 (defn monkey-biz [mks]
   (->> mks
        vals
+       (filter map?)
        (sort-by :inspect-count >)
        (take 2)
        (map :inspect-count)
        (apply *)))
 
 (comment
-  (sim-rounds "example.txt" 20)
-  (sim-rounds "input.txt" 20)
+  (sim-rounds "example.txt" 20 :part-1)
+  (sim-rounds "input.txt" 20 :part-1)
 
   (monkey-biz *1)
   )

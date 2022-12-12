@@ -74,36 +74,42 @@
    :steps   #{(:start input)}})
 
 (defn neighbors
-  [grid-data path]
-  (let [[x y]             (:current path)
-        goal              (:goal grid-data)
-        grid              (:grid grid-data)
-        current-elevation (if (#{[x y]} (:start grid-data))
-                            96 ;; one less than (int \a)
-                            (int (grid [x y])))]
-    (->>
-      {:right [(inc x) y]
-       :left  [(dec x) y]
-       :down  [x (dec y)]
-       :up    [x (inc y)]}
-      vals
-      (remove (:steps path))
-      (filter (fn [pos]
-                (let [ele (grid pos)]
-                  ;; drop nil ele (off grid edge)
-                  (when ele
-                    (let [e (int ele)]
-                      (or
-                        ;; keep if same or elevation + 1
-                        (#{e (dec e)} current-elevation)
+  ([grid-data path] (neighbors grid-data path nil))
+  ([grid-data path {:keys [keep-neighbor?]}]
+   (let [[x y]             (:current path)
+         goal              (:goal grid-data)
+         grid              (:grid grid-data)
+         current-elevation (if (#{[x y]} (:start grid-data))
+                             96 ;; one less than (int \a)
+                             (int (grid [x y])))]
+     (->>
+       {:right [(inc x) y]
+        :left  [(dec x) y]
+        :down  [x (dec y)]
+        :up    [x (inc y)]}
+       vals
+       (remove (:steps path))
+       (filter (fn [pos]
+                 (let [ele (grid pos)]
+                   ;; drop nil ele (off grid edge)
+                   (when ele
+                     (if keep-neighbor?
+                       ;; part 2
+                       (keep-neighbor? grid-data path ele)
 
-                        ;; we can go down too....
-                        (and
-                          (not (#{\E} ele))
-                          (> current-elevation e))
+                       ;; part 1
+                       (let [e (int ele)]
+                         (or
+                           ;; keep if same or elevation + 1
+                           (#{e (dec e)} current-elevation)
 
-                        (and (#{(int \z)} current-elevation)
-                             (#{goal} pos)))))))))))
+                           ;; we can go down too....
+                           (and
+                             (not (#{\E} ele))
+                             (> current-elevation e))
+
+                           (and (#{(int \z)} current-elevation)
+                                (#{goal} pos)))))))))))))
 
 (comment
   (def grid-data (input "example.txt"))
@@ -140,12 +146,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn find-shortest-path [f]
+(defn find-shortest-path [f {:keys [->init-path is-goal?] :as opts}]
   (let [grid-data (input f)
-        goal      (:goal grid-data)
         debug     false]
     (loop [n          0
-           paths      [(init-path grid-data)]
+           paths      [(->init-path grid-data)]
            last-paths nil]
       (when debug
         (println "\n----------------------- " n " ----------------------"
@@ -158,12 +163,11 @@
               (let [updated-paths
                     (->> paths
                          (mapcat (fn [p]
-                                   (let [nbrs (neighbors grid-data p)]
-                                     ;; TODO prefer more elevated nbrs
+                                   (let [nbrs (neighbors grid-data p opts)]
                                      (->> nbrs
                                           (map (fn [nbr]
                                                  (cond-> (extend-path grid-data p nbr)
-                                                   (#{goal} nbr)
+                                                   (is-goal? grid-data nbr)
                                                    (assoc :complete true)))))))))
                     ;; pth-ct        (count updated-paths)
                     ;; ;; drop lower-elevation paths
@@ -181,11 +185,32 @@
 
                 (recur (inc n) updated-paths paths))))))))
 
+(def part-1-opts
+  {:->init-path init-path
+   :is-goal?    (fn [grid-data point] (#{(:goal grid-data)} point))})
+
+(def part-2-opts
+  {:->init-path    (fn [grid-data]
+                     ;; start at goal
+                     {:current (:goal grid-data)
+                      :steps   #{(:goal grid-data)}})
+   :is-goal?       (fn [grid-data point] (#{\a} ((:grid grid-data) point)))
+   :keep-neighbor? (fn [grid-data path elevation]
+                     (let [current-elevation ((:grid grid-data) (:current path))
+                           ce                (int current-elevation)
+                           e                 (int elevation)]
+                       (if (#{\E} current-elevation)
+                         (#{\z} elevation)
+                         (>= e (dec ce)))))})
+
 (comment
   (int \m)
 
-  (find-shortest-path "example.txt")
-  (find-shortest-path "input.txt")
+  (find-shortest-path "example.txt" part-1-opts)
+  (find-shortest-path "input.txt" part-1-opts)
+
+  (find-shortest-path "example.txt" part-2-opts)
+  (find-shortest-path "input.txt" part-2-opts)
 
   (def shortest *1)
   (draw-path shortest)

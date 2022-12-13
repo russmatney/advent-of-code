@@ -17,6 +17,7 @@
 ** [[file:src/_2022/_10/core.clj][Day 10]]: Cathode Ray Tube
 ** [[file:src/_2022/_11/core.clj][Day 11]]: Monkey Business
 ** [[file:src/_2022/_12/core.clj][Day 12]]: Hill Climbing Algorithm
+** [[file:src/_2022/_13/core.clj][Day 13]]: Distress Signal
 * 2021
 ** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases
 ** [[file:src/_2021/two/core.clj][Day 2]]: Steering

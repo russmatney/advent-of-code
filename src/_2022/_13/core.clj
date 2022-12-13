@@ -80,3 +80,33 @@
 (comment
   (sum-correct-order-idxs "example.txt")
   (sum-correct-order-idxs "input.txt"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; part 2
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn all-signals [f]
+  (-> (path f)
+      (util/parse-input)
+      (->>
+        (remove #{""})
+        (map read-string)
+        (concat [[[2]] [[6]]]))))
+
+(defn sort-all [f]
+  (->> (all-signals f)
+       (sort (fn [a b]
+               (case (compare-sides a b)
+                 :correct   -1
+                 :incorrect 1)))
+       vec))
+
+(defn decoder-key [sorted]
+  (let [a (inc (.indexOf sorted [[2]]))
+        b (inc (.indexOf sorted [[6]]))]
+    (* a b)))
+
+(comment
+  (-> "example.txt" sort-all)
+  (-> "example.txt" sort-all decoder-key)
+  (-> "input.txt" sort-all decoder-key))

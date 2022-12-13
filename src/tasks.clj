@@ -2,6 +2,7 @@
   (:require [babashka.curl :as curl]
             [babashka.pods :as pods]
             [babashka.fs :as fs]
+            [babashka.process :as process]
             [clojure.string :as str]))
 
 (defn cookie
@@ -84,8 +85,10 @@
         :body)))
 
 (defn create-input [year day]
-  (let [file  (str "src/_" year "/_" (leading-zero day) "/input.txt")
+  (let [dir   (str "src/_" year "/_" (leading-zero day))
+        file  (str dir "/input.txt")
         input (get-input year day)]
+    (-> (process/$ mkdir -p ~dir) process/check)
     (spit file input)))
 
 (comment

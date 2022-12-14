@@ -87,24 +87,20 @@
 (comment
   (draw-cave (state "input.txt")))
 
-(defn sand-next-point [{:keys [path-points sand-points
-                               part-2 cave-floor]} [x y]]
+(defn sand-next-point [{:keys [all-points part-2 cave-floor]} [x y]]
   (let [down       [x (inc y)]
         down-left  [(dec x) (inc y)]
-        down-right [(inc x) (inc y)]
-        ;; maybe pre-calc?
-        filled?    (set/union path-points sand-points)]
+        down-right [(inc x) (inc y)]]
     (cond
       (and part-2 (= (inc y) cave-floor)) [x y]
-      (not (filled? down))                down
-      (not (filled? down-left))           down-left
-      (not (filled? down-right))          down-right
+      (not (all-points down))             down
+      (not (all-points down-left))        down-left
+      (not (all-points down-right))       down-right
       :else                               [x y])))
 
 (comment
   (draw-cave (state "example.txt"))
-  (sand-next-point (state "example.txt") [500 7])
-  )
+  (sand-next-point (state "example.txt") [500 7]))
 
 (defn add-new-sand [{:keys [part-2 sand-start] :as state}]
   (loop [sand-point sand-start]
@@ -112,7 +108,10 @@
           new-point (sand-next-point state sand-point)]
       (cond
         (#{sand-start} new-point)  state
-        (#{sand-point} new-point)  (update state :sand-points conj new-point)
+        (#{sand-point} new-point)
+        (-> state
+            (update :sand-points conj new-point)
+            (update :all-points conj new-point))
         (and (not part-2)
              (> y (:max-y state))) state
         :else                      (recur new-point)))))

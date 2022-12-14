@@ -23,7 +23,7 @@
   (path-points "input.txt"))
 
 
-(defn all-points [f]
+(defn all-path-points [f]
   (->> (path-points f)
        (reduce
          (fn [points path]
@@ -42,14 +42,14 @@
          #{})))
 
 (comment
-  (all-points "example.txt")
-  (all-points "input.txt"))
+  (all-path-points "example.txt")
+  (all-path-points "input.txt"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn draw-cave [{:keys [path-points sand-point]}]
+(defn draw-cave [{:keys [path-points sand-start sand-points]}]
   (println "\n--------------------------Drawing cave-----------------")
-  (let [points (conj path-points sand-point)
+  (let [points (conj (set/union path-points sand-points) sand-start)
         max-x  (->> points (map first) (apply max))
         min-x  (->> points (map first) (apply min))
         max-y  (->> points (map second) (apply max))
@@ -62,8 +62,9 @@
                       (->>
                         (range min-x (inc max-x))
                         (map (fn [x] (cond
-                                       (#{sand-point} [x y]) "+"
-                                       (points [x y])        "#"
+                                       (#{sand-start} [x y]) "+"
+                                       (sand-points [x y])   "o"
+                                       (path-points [x y])   "#"
                                        :else                 ".")))
                         (apply str))
                       "\n")))
@@ -74,9 +75,75 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn state [f]
-  {:path-points (all-points f)
-   :sand-point  [500, 0]})
+  (let [path-points (all-path-points f)
+        max-y       (->> path-points (map second) (apply max))]
+    {:path-points path-points
+     :sand-start  [500, 0]
+     :sand-points #{}
+     :all-points  path-points
+     :max-y       max-y
+     :cave-floor  (+ 2 max-y)}))
+
+(comment
+  (draw-cave (state "input.txt")))
+
+(defn sand-next-point [{:keys [path-points sand-points
+                               part-2 cave-floor]} [x y]]
+  (let [down       [x (inc y)]
+        down-left  [(dec x) (inc y)]
+        down-right [(inc x) (inc y)]
+        ;; maybe pre-calc?
+        filled?    (set/union path-points sand-points)]
+    (cond
+      (and part-2 (= (inc y) cave-floor)) [x y]
+      (not (filled? down))                down
+      (not (filled? down-left))           down-left
+      (not (filled? down-right))          down-right
+      :else                               [x y])))
 
 (comment
   (draw-cave (state "example.txt"))
-  (draw-cave (state "input.txt")))
+  (sand-next-point (state "example.txt") [500 7])
+  )
+
+(defn add-new-sand [{:keys [part-2 sand-start] :as state}]
+  (loop [sand-point sand-start]
+    (let [[_x y]    sand-point
+          new-point (sand-next-point state sand-point)]
+      (cond
+        (#{sand-start} new-point)  state
+        (#{sand-point} new-point)  (update state :sand-points conj new-point)
+        (and (not part-2)
+             (> y (:max-y state))) state
+        :else                      (recur new-point)))))
+
+(comment
+  (draw-cave (-> (state "example.txt") add-new-sand)))
+
+(defn pour-until-stable [state]
+  (->>
+    state
+    (iterate add-new-sand)
+    (map-indexed (fn [i x] [i x]))
+    (partition 2 1)
+    (take-while (fn [[[_i a] [_k b]]] (not (= a b))))
+    last
+    second))
+
+(comment
+  (pour-until-stable (state "example.txt"))
+  (pour-until-stable (state "input.txt"))
+
+  (pour-until-stable (assoc (state "example.txt") :part-2 true))
+  (pour-until-stable (assoc (state "input.txt") :part-2 true))
+
+  (def stable-state *1)
+  (-> stable-state second draw-cave)
+
+  (->>
+    (iterate (fn [s] (str "- :) -")) 5)
+    (map-indexed (fn [i x] [i x]))
+    (drop 5)
+    (take 3)
+    )
+  )

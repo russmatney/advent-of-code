@@ -33,27 +33,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn draw-path [{:keys [steps current grid-data]}]
-  (println "\n--------------------------Drawing path-----------------")
-  (let [max-x (->> steps (map first) (apply max))
-        min-x (->> steps (map first) (apply min))
-        max-y (->> steps (map second) (apply max))
-        min-y (->> steps (map second) (apply min))
-        rendered
-        (->>
-          (range min-y (inc max-y))
-          (map (fn [y]
-                 (str y ":\t"
-                      (->>
-                        (range min-x (inc max-x))
-                        (map (fn [x] (cond
-                                       (#{current} [x y]) "V"
-                                       (steps [x y])      ((:grid grid-data) [x y])
-                                       :else              ".")))
-                        (apply str))
-                      "\n")))
-          (apply str))]
-    (println rendered)
-    rendered))
+  (util/draw-grid steps
+                  (fn [[x y]]
+                    (cond
+                      (#{current} [x y]) "V"
+                      (steps [x y])      ((:grid grid-data) [x y])
+                      :else              "."))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

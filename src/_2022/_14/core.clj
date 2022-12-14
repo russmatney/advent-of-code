@@ -47,29 +47,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn draw-cave [{:keys [path-points sand-start sand-points]}]
-  (println "\n--------------------------Drawing cave-----------------")
-  (let [points (conj (set/union path-points sand-points) sand-start)
-        max-x  (->> points (map first) (apply max))
-        min-x  (->> points (map first) (apply min))
-        max-y  (->> points (map second) (apply max))
-        min-y  (->> points (map second) (apply min))
-        rendered
-        (->>
-          (range min-y (inc max-y))
-          (map (fn [y]
-                 (str y ":\t"
-                      (->>
-                        (range min-x (inc max-x))
-                        (map (fn [x] (cond
-                                       (#{sand-start} [x y]) "+"
-                                       (sand-points [x y])   "o"
-                                       (path-points [x y])   "#"
-                                       :else                 ".")))
-                        (apply str))
-                      "\n")))
-          (apply str))]
-    (println rendered)
-    rendered))
+  (util/draw-grid (conj (set/union path-points sand-points) sand-start)
+                  (fn [[x y]] (cond
+                                (#{sand-start} [x y]) "+"
+                                (sand-points [x y])   "o"
+                                (path-points [x y])   "#"
+                                :else                 "."))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

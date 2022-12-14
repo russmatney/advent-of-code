@@ -24,34 +24,19 @@
 
 (defn draw-tail-visits [{:keys [rope tail-visits]}]
   (let [head-position (first rope)
-        tail-position (last rope)
-        all-pos       (conj tail-visits head-position)
-        max-x         (->> all-pos (map first) (apply max))
-        min-x         (->> all-pos (map first) (apply min))
-        max-y         (->> all-pos (map second) (apply max))
-        min-y         (->> all-pos (map second) (apply min))]
-    (->>
-      (range min-y (inc max-y))
-      reverse
-      (map (fn [y]
-             (str y ":\t"
-                  (->>
-                    (range min-x (inc max-x))
-                    (map (fn [x] (cond
-                                   (#{head-position} [x y]) "H"
-                                   (#{tail-position} [x y]) "T"
-                                   (#{[0 0]} [x y])         "s"
-                                   (tail-visits [x y])      "#"
-                                   :else                    ".")))
-                    (apply str))
-                  "\n")))
-      (apply str))))
+        tail-position (last rope)]
+    (util/draw-grid
+      (conj tail-visits head-position)
+      (fn [[x y]]
+        (cond
+          (#{head-position} [x y]) "H"
+          (#{tail-position} [x y]) "T"
+          (#{[0 0]} [x y])         "s"
+          (tail-visits [x y])      "#"
+          :else                    "."))
+      {:reverse-y true})))
 
 (comment
-  (println
-    (draw-tail-visits {:rope        [[0 0] [-1 -1]]
-                       :tail-visits #{[0 0] [0 1] [1 0] [-1 0] [0 -1] [-1 -1]}}))
-
   ;; 15:H.....................
   ;; 14:......................
   ;; 13:......................
@@ -157,4 +142,4 @@
 
   (count-visits *1)
 
-  (println (draw-tail-visits *1)))
+  (draw-tail-visits *1))

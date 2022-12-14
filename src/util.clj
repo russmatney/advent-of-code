@@ -49,3 +49,29 @@
         .getParent
         (str "/" ~fname)
         (parse-input ~opts))))
+
+(defn draw-grid
+  ([points draw-fn] (draw-grid points draw-fn nil))
+  ([points draw-fn {:keys [reverse-y]}]
+   (println "\n--------------------------Drawing grid-----------------")
+   (let [max-x (->> points (map first) (apply max))
+         min-x (->> points (map first) (apply min))
+         max-y (->> points (map second) (apply max))
+         min-y (->> points (map second) (apply min))
+         rendered
+         (cond->> (range min-y (inc max-y))
+           reverse-y reverse
+           true      (map (fn [y]
+                            (str y ":\t"
+                                 (->>
+                                   (range min-x (inc max-x))
+                                   (map (if draw-fn
+                                          #(draw-fn [% y])
+                                          (fn [x] (cond
+                                                    (points [x y]) "#"
+                                                    :else          "."))))
+                                   (apply str))
+                                 "\n")))
+           true      (apply str))]
+     (println rendered)
+     rendered)))

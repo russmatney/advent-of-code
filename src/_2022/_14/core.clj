@@ -22,7 +22,6 @@
   (path-points "example.txt")
   (path-points "input.txt"))
 
-
 (defn all-path-points [f]
   (->> (path-points f)
        (reduce
@@ -137,12 +136,4 @@
   (pour-until-stable (assoc (state "input.txt") :part-2 true))
 
   (def stable-state *1)
-  (-> stable-state second draw-cave)
-
-  (->>
-    (iterate (fn [s] (str "- :) -")) 5)
-    (map-indexed (fn [i x] [i x]))
-    (drop 5)
-    (take 3)
-    )
-  )
+  (-> stable-state second draw-cave))

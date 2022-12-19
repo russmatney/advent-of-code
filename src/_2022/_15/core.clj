@@ -1,6 +1,5 @@
 (ns _2022._15.core
-  (:require [util :as util]
-            [clojure.set :as set]))
+  (:require [util :as util]))
 
 (defn f-path [f]
   (str "src/_2022/_15/" f))

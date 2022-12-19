@@ -20,6 +20,10 @@
 ** [[file:src/_2022/_13/core.clj][Day 13]]: Distress Signal
 ** [[file:src/_2022/_14/core.clj][Day 14]]: Regolith Reservoir
 ** [[file:src/_2022/_15/core.clj][Day 15]]: Beacon Exclusion Zone
+** [[file:src/_2022/_16/core.clj][Day 16]]: Volcano?
+** [[file:src/_2022/_17/core.clj][Day 17]]: Pyro Flow
+** [[file:src/_2022/_18/core.clj][Day 18]]: Boiling Boulders
+** [[file:src/_2022/_19/core.clj][Day 19]]: Not Enough Minerals
 * 2021
 ** [[file:src/_2021/one/core.clj][Day 1]]: Depth increases
 ** [[file:src/_2021/two/core.clj][Day 2]]: Steering

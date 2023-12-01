@@ -1,9 +1,13 @@
-#+TITLE: Advent of Code
+#+TITLE: Advent of Code - Clojure
 
+[[./badges/2015.svg]]
 [[./badges/2020.svg]]
 [[./badges/2021.svg]]
 [[./badges/2022.svg]]
+[[./badges/2023.svg]]
 
+* 2023
+** [[file:src/_2023/_01/core.clj][Day 1]]: Trebuchet
 * 2022
 ** [[file:src/_2022/_01/core.clj][Day 1]]: Calorie Counting
 ** [[file:src/_2022/_02/core.clj][Day 2]]: Rock Paper Scissors

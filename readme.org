@@ -6,6 +6,10 @@
 [[./badges/2022.svg]]
 [[./badges/2023.svg]]
 
+* Other AOCs
+- [[https://github.com/russmatney/advent-of-code-zig][advent-of-code-zig]]
+- [[https://github.com/russmatney/advent-of-code-gerbil][advent-of-code-gerbil]]
+- [[https://github.com/russmatney/advent-of-godot][advent-of-godot]]
 * 2023
 ** [[file:src/_2023/_01/core.clj][Day 1]]: Trebuchet
 * 2022

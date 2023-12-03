@@ -39,7 +39,7 @@
 (defn game->min-colors [game]
   (reduce
     (fn [{:as agg :keys [green red blue]} color-counts]
-      (reduce (fn [agg {:as c :keys [n color]}]
+      (reduce (fn [agg {:keys [n color]}]
                 (cond-> agg
                   (and (#{:green} color) (> n green))
                   (assoc :green n)
@@ -78,5 +78,4 @@
        (map game->min-colors)
        (map vals)
        (map #(apply * %))
-       (reduce + 0))
-  )
+       (reduce + 0)))

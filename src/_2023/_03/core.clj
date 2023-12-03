@@ -4,10 +4,6 @@
 (defn input [fname]
   (util/parse-input (str "src/_2023/_03/" fname)))
 
-(comment
-  (input "example.txt")
-  (input "input.txt"))
-
 (defn digit? [x]
   (#{\1 \2 \3 \4 \5 \6 \7 \8 \9 \0} x))
 
@@ -40,10 +36,7 @@
   (->part-locs (input "example.txt"))
   (->grid (input "example.txt"))
 
-  (->> "45..*.4"
-       (map (fn [char]
-              (digit? char)
-              ))))
+  (->> "45..*.4" (map (fn [char] (digit? char)))))
 
 (defn neighbors [[x y]]
   #{[x (inc y)]
@@ -117,14 +110,13 @@
                  (= (:part-count opts) (count xs))))))))
 
 (comment
+  ;; part 1
   (->>
     (part-numbers (input "example.txt"))
     (map vals)
     (apply concat)
-    (reduce +)
-    )
+    (reduce +))
 
-  ;; part 1
   (->>
     (part-numbers (input "input.txt"))
     (map vals)

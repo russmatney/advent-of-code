@@ -14,6 +14,7 @@
 ** [[file:src/_2023/_01/core.clj][Day 1]]: Trebuchet
 ** [[file:src/_2023/_02/core.clj][Day 2]]: Cubes
 ** [[file:src/_2023/_03/core.clj][Day 3]]: Part numbers
+** [[file:src/_2023/_04/core.clj][Day 4]]: Card Copies
 * 2022
 ** [[file:src/_2022/_01/core.clj][Day 1]]: Calorie Counting
 ** [[file:src/_2022/_02/core.clj][Day 2]]: Rock Paper Scissors

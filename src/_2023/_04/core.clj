@@ -6,10 +6,6 @@
 (defn input [fname]
   (util/parse-input (str "src/_2023/_04/" fname)))
 
-(comment
-  (input "input.txt")
-  (input "example.txt"))
-
 (defn parse [data]
   (->> data
        (map (fn [card]
@@ -21,29 +17,20 @@
                     winning
                     (->> (re-seq #"(\d+)" winning-n)
                          (map first)
-                         (map parse-long))
+                         (map parse-long)
+                         (into #{}))
                     played
                     (->> (re-seq #"(\d+)" played-n)
                          (map first)
-                         (map parse-long))]
+                         (map parse-long)
+                         (into #{}))]
                 {:id id :winning winning :played played})))))
 
-(comment
-  (parse (input "example.txt"))
-  (parse (input "input.txt")))
-
-(defn matches [game]
-  (let [{:keys [winning played]}
-        (-> game
-            (update :winning #(into #{} %))
-            (update :played #(into #{} %)))]
-    (count (set/intersection winning played))))
+(defn matches [{:keys [winning played]}]
+  (count (set/intersection winning played)))
 
 (defn points [game]
-  (reduce
-    (fn [tot _i]
-      (if (zero? tot) 1 (* 2 tot)))
-    0 (range (matches game))))
+  (int (Math/pow 2 (dec (matches game)))))
 
 (comment
   ;; part 1

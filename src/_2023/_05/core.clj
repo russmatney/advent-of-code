@@ -6,9 +6,11 @@
                     {:partition? true}))
 
 (defn ->seeds [data]
-  (->> data first first (re-seq #"(\d+)") (map first)))
+  (->> data first first (re-seq #"(\d+)") (map first) (map parse-long)))
 
 (defn map-value [map-data val]
+  ;; (def m map-data)
+  ;; (def v v)
   (let [lowest-data (->> map-data
                          (filter #(<= (:src %) val))
                          (sort-by :src >)
@@ -29,7 +31,7 @@
                     {:src 50 :dest 52 :rng 2}] x)]))))
 
 (defn ->seed-map [lines]
-  (let [[src dest] (->> lines first (re-seq #"(\w+)-to-(\w+)") first rest)
+  (let [[src dest] (->> lines first (re-seq #"(\w+)-to-(\w+)") first rest (map keyword))
         map-data   (->> lines rest (map (fn [line]
                                           (let [[dest src range]
                                                 (->> line
@@ -44,9 +46,32 @@
 (comment
   (->> (input "example.txt") rest (first) ->seed-map))
 
-(defn ->maps [data]
+(defn ->seed-maps [data]
   (->> data (rest) (map ->seed-map)))
 
 (comment
-  (->maps (input "example.txt"))
-  (->maps (input "input.txt")))
+  (->seed-map (rest (input "example.txt")))
+
+  (->seed-maps (input "example.txt"))
+  (->seed-maps (input "input.txt")))
+
+(defn seed->location [seed-maps seed]
+  (reduce #(map-value (:map-data %2) %1) seed seed-maps))
+
+(comment
+  (-> "example.txt" input ->seed-maps)
+  (-> "example.txt" input ->seed-maps (seed->location 14))
+  (-> "example.txt" input ->seed-maps (seed->location 55))
+  (-> "example.txt" input ->seed-maps (seed->location 13))
+  )
+
+(defn lowest-location [data]
+  (let [sms (->> (rest data) (map ->seed-map))]
+    (->> data ->seeds
+         (map (partial seed->location sms))
+         (apply min))))
+
+(comment
+  (lowest-location (input "example.txt"))
+  (lowest-location (input "input.txt"))
+  )

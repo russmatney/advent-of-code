@@ -5,7 +5,6 @@
 (defn input [fname]
   (util/parse-input (str "src/_2023/_08/" fname ".txt") {:partition? true}))
 
-
 (comment
   (input "input")
   (input "example"))
@@ -25,57 +24,55 @@
     {:steps   steps
      :network network}))
 
-
 (comment
   (parse "input")
   (parse "example")
   (->> "AAA = (BBB, CCC)" (re-seq #"([A-Z]{3}), ([A-Z]{3})")))
 
-(defn count-steps-a-to-z [fname]
-  (let [{:keys [steps network]} (parse fname)
-        total-steps             (count steps)]
-
-    (loop [ct       1
-           step-idx 0
-           node     "AAA"]
-      (let [next-dir  (case (get steps step-idx)
-                        \L :left \R :right)
-            next-node (get (network node) next-dir)]
-        (if (#{"ZZZ"} next-node)
-          ct
-          (recur (inc ct)
-                 (mod (inc step-idx) total-steps)
-                 next-node))))))
+(defn count-steps
+  ([fname] (count-steps fname "AAA" #{"ZZZ"}))
+  ([fname start-node is-finished?]
+   (let [{:keys [steps network]} (parse fname)
+         total-steps             (count steps)]
+     (loop [ct       1
+            step-idx 0
+            node     start-node]
+       (let [next-dir  (case (get steps step-idx)
+                         \L :left \R :right)
+             next-node (get (network node) next-dir)]
+         (if (is-finished? next-node)
+           ct
+           (recur (inc ct)
+                  (mod (inc step-idx) total-steps)
+                  next-node)))))))
 
 (comment
   (mod 8 5)
+  (count-steps "example")
+  (count-steps "input"))
 
-  (count-steps-a-to-z "example")
-  (count-steps-a-to-z "input"))
+;; pulled lcm code from 2020 day 13....
+;; https://rosettacode.org/wiki/Least_common_multiple#Clojure
+(defn gcd [a b]
+  (if (zero? b) a
+      (recur b (mod a b))))
 
-(defn ghost-steps-a-to-z [fname]
-  (let [{:keys [steps network]} (parse fname)
-        total-steps             (count steps)
-        first-nodes             (->> network keys (filter #(string/ends-with? % "A")) (into #{}))
-        all-at-z?               (fn [nodes]
-                                  (->> nodes (remove #(string/ends-with? % "Z")) empty?))]
-    (loop [ct            1
-           step-idx      0
-           current-nodes first-nodes]
-      (let [next-dir   (case (get steps step-idx) \L :left \R :right)
-            next-nodes (->> current-nodes (map #(get (network %) next-dir)))]
-        (if (all-at-z? next-nodes)
-          ct
-          (recur
-            (inc ct)
-            (mod (inc step-idx) total-steps)
-            (into #{} next-nodes)))))))
+(defn lcm [a b]
+  (/ (* a b) (gcd a b)))
+
+(defn lcmv [& ns] (reduce lcm (remove nil? ns)))
 
 (comment
-  (ghost-steps-a-to-z "example2")
-  (ghost-steps-a-to-z "input")
+  (lcmv 2 3 4 nil))
 
-  (let [network (-> "example2" parse :network)]
-    (->> network keys (filter #(string/ends-with? % "A")) (into #{})
-         (map (fn [node] (network node)))))
-  )
+(defn ghost-steps [fname]
+  (let [{:keys [network]} (parse fname)
+        first-nodes       (->> network keys (filter #(string/ends-with? % "A")) (into #{}))
+        dists-to-z        (->> first-nodes
+                               (map #(count-steps
+                                       fname % (fn [node] (string/ends-with? node "Z")))))]
+    (apply lcmv dists-to-z)))
+
+(comment
+  (ghost-steps "example2")
+  (ghost-steps "input"))

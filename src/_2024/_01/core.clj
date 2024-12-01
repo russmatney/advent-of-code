@@ -4,33 +4,38 @@
    [util :as util]))
 
 (defn input [fname]
-  (util/parse-input (str "src/_2024/_01/" fname)))
-
-;; part 1
-(comment
-  (input "input.txt")
-  (input "example.txt")
-
   (->>
-    (input "input.txt")
+    (util/parse-input (str "src/_2024/_01/" fname))
     (map #(-> % (string/split #" ")
               (->> (remove (comp #{0} count)))))
     (reduce (fn [acc next]
               (-> acc
                   (update 0 conj (read-string (first next)))
                   (update 1 conj (read-string (last next)))))
-            [[] []])
+            [[] []])))
+
+(comment
+  (input "input.txt")
+  (input "example.txt")
+
+  ;; part 1
+  (->>
+    (input "input.txt")
     (map sort)
     (map #(into [] %))
-    ((fn [[f s]]
+    ((fn [[left right]]
        (loop [ix       0
               distance 0]
-         (println "ix" ix "distance" distance)
-         (if (>= ix (count f))
+         (if (>= ix (count left))
            distance
            (recur (inc ix)
-                  (+ distance
-                     (abs
-                       (-
-                         (get f ix)
-                         (get s ix)))))))))))
+                  (+ distance (abs (- (get left ix) (get right ix))))))))))
+
+  ;; part 2
+  (->>
+    (input "input.txt")
+    ((fn [[left right]]
+       (let [freqs (frequencies right)]
+         (->> left
+              (map (fn [x] (* x (or (freqs x) 0))))
+              (reduce + 0)))))))

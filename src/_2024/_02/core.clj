@@ -43,11 +43,37 @@
   (is-safe? [0 3 5])
   (is-safe? [0 4 5])
   (is-safe? [5 3 2])
-  (is-safe? [5 3 0]))
+  (is-safe? [5 3 0])
 
-(comment
   (->>
     (input "input.txt")
     (filter is-safe?)
-    count)
+    count))
+
+(defn permutes [report]
+  (->>
+    report
+    count
+    range
+    (map
+      (fn [i]
+        (->>
+          [(take i report) (drop (inc i) report)]
+          (mapcat identity)
+          (into [])))))
   )
+
+(comment
+  (permutes [0 1 2])
+
+  (->>
+    (input "input.txt")
+    (filter (fn [report]
+              (if (is-safe? report)
+                true
+                (let [perms (permutes report)]
+                  (->> perms
+                       (filter is-safe?)
+                       seq
+                       first)))))
+    count))

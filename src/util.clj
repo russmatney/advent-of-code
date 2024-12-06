@@ -16,7 +16,7 @@
 
 (defn parse-input
   ([f] (parse-input f nil))
-  ([f {:keys [skip-split-lines? split split? ints? partition? trim?]}]
+  ([f {:keys [skip-split-lines? split split? ints? partition? trim? one-line?]}]
    (let [split (or split (when split? " "))
          parsed
          (cond-> f
@@ -35,6 +35,7 @@
        partition? (partition-by-newlines parsed)
        split      (parse-split-lines split parsed)
        ints?      (parse-ints parsed)
+       one-line?  (first parsed)
        :else      parsed))))
 
 (defmacro input

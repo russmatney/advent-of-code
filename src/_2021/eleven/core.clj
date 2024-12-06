@@ -27,7 +27,7 @@
 (defn all-coords [rows]
   (for [x     (range (count rows))
         y     (range (count (first rows)))
-        :when (grid/num-at rows {:x x :y y})]
+        :when (grid/val-at rows {:x x :y y})]
     {:x x :y y}))
 
 (defn inc-at
@@ -35,7 +35,7 @@
   Returns the updated rows and the number of flashes."
   ([rows coord] (inc-at rows coord #{}))
   ([rows coord flashed]
-   (let [val (grid/num-at rows coord)]
+   (let [val (grid/val-at rows coord)]
      (if-not (#{9} val)
        {:rows    (if (flashed coord)
                    rows
